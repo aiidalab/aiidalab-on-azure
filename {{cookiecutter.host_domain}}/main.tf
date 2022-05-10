@@ -50,7 +50,11 @@ resource "azurerm_kubernetes_cluster" "k8s" {
   default_node_pool {
     name       = "agentpool"
     node_count = var.agent_count
-    vm_size    = "Standard_D2_v2"
+    vm_size    = "Standard_D2_v3"
+
+    node_labels = {
+      "hub.jupyter.org/node-purpose" = "core"
+    }
   }
 
   service_principal {
@@ -72,5 +76,21 @@ resource "azurerm_kubernetes_cluster" "k8s" {
 
   tags = {
     Environment = "Development"
+  }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "user" {
+  name                  = "user"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.k8s.id
+  vm_size               = "Standard_D4s_v3"
+
+  # Autoscaling configuration
+  enable_auto_scaling = true
+  node_count          = 0
+  min_count           = 0
+  max_count           = 2
+
+  node_labels = {
+    "hub.jupyter.org/node-purpose" = "user"
   }
 }

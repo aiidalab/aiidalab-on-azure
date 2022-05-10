@@ -1,0 +1,92 @@
+proxy:
+    secretToken: "{{ cookiecutter.secret_token }}"
+    https:
+      enabled: {{ cookiecutter.https_enabled | default(false) }}
+      hosts:
+        - "{{ cookiecutter.host_domain }}"
+      letsencrypt:
+        contactEmail: "{{ cookiecutter.contact_email }}"
+
+singleuser:
+  image:
+    name: "{{ cookiecutter.image_name }}"
+    tag: "{{ cookiecutter.image_tag }}"
+    pullPolicy: Always
+  fsGid: 1000
+  cmd: /sbin/my_my_init
+  extraEnv:
+    NB_USER: "aiida"
+    NB_UID: "1000"
+    NB_GID: "1000"
+    AIIDALAB_FACTORY_RESET: "{{ cookiecutter.aiidalab_factory_reset | default('')}}"
+{%- if cookiecutter.aiidalab_default_apps %}
+    AIIDALAB_DEFAULT_APPS: >-
+      {{ cookiecutter.aiidalab_default_apps.split() | join('\n') | indent(6) }}
+{%- endif %}
+  storage:
+    homeMountPath: "/home/aiida"
+    dynamic:
+      storageClass: azurefile-csi-premium
+
+  memory:
+    limit: 4G
+    guarantee: 2G
+  cpu:
+    limit: 2.0
+    guarantee: .5
+  startTimeout: 600
+
+hub:
+  config:
+    JupyterHub:
+      authenticator_class: github
+    GitHubOAuthenticator:
+      client_id: "{{ cookiecutter.oauth_client_id }}"
+      client_secret: "{{ cookiecutter.oauth_client_secret }}"
+      oauth_callback_url: "https://{{ cookiecutter.host_domain }}/hub/oauth_callback"
+      allowed_organizations:
+        - aiidalab
+      admin_users:
+        - csadorf
+      scope:
+        - read:user
+        - read:org
+
+  db:
+    pvc:
+      storageClassName: default
+
+  extraConfig:
+    myConfig: |
+
+      c.KubeSpawner.http_timeout = 600
+      # phusion init system needs to run as root
+      c.KubeSpawner.uid = 0
+      # Setting the gid was needed to fix
+      # https://github.com/aiidalab/aiidalab-docker-stack/issues/20
+      c.KubeSpawner.gid = 1000
+
+      # insert template path for custom login template
+      c.JupyterHub.template_paths.insert(0, "/etc/jupyterhub/templates")
+
+      # Override default logo
+      import urllib.request
+      urllib.request.urlretrieve("https://github.com/aiidalab/ansible-role-aiidalab-server/raw/master/files/aiidalab_wide.png", "aiidalab-logo.png")
+      c.JupyterHub.logo_file = "aiidalab-logo.png"
+
+scheduling:
+  userPods:
+    nodeAffinity:
+      # matchNodePurpose valid options:
+      # - ignore
+      # - prefer (the default)
+      # - require
+      matchNodePurpose: require
+
+# removing inactive pods (=no response from the user's browser).
+cull:
+  enabled: true
+  # timeout = 2h
+  timeout: 7200
+  # check every 10 minutes
+  every: 600

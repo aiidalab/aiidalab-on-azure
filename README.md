@@ -1,2 +1,4 @@
-1. Follow instructions on https://docs.microsoft.com/en-us/azure/developer/terraform/create-k8s-cluster-with-tf-and-aks to create a service account principal and storage account for terraform and create `terraform.tfvars` file for variables `aks_service_principal_app_id`, `aks_service_principal_client_secret`, `aks_service_principal_object_id`.
-2. Create cluster with `terraform apply`.
+1. Follow instructions on https://docs.microsoft.com/en-us/azure/developer/terraform/create-k8s-cluster-with-tf-and-aks to create a service account principal and storage account for terraform.
+2. Create a Python environment (Python 3.10) and install cookiecutter, e.g., with `pip install cookiecutter`.
+3. Create a new deployment with `cookiecutter .`
+4. Switch into the directory created for the deployment and create it with `terraform apply`.
