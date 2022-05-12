@@ -3,9 +3,11 @@ proxy:
     https:
       enabled: {{ cookiecutter.https_enabled | default(false) }}
       hosts:
-        - "{{ cookiecutter.host_domain }}"
+        - "{{ cookiecutter.hostname }}"
       letsencrypt:
         contactEmail: "{{ cookiecutter.contact_email }}"
+    annotations:
+      "external-dns.alpha.kubernetes.io/hostname": "{{ cookiecutter.hostname }}"
 
 singleuser:
   image:
@@ -26,7 +28,7 @@ singleuser:
   storage:
     homeMountPath: "/home/aiida"
     dynamic:
-      storageClass: azurefile-csi-premium
+      storageClass: managed-premium
 
   memory:
     limit: 4G
@@ -43,7 +45,7 @@ hub:
     GitHubOAuthenticator:
       client_id: "{{ cookiecutter.oauth_client_id }}"
       client_secret: "{{ cookiecutter.oauth_client_secret }}"
-      oauth_callback_url: "https://{{ cookiecutter.host_domain }}/hub/oauth_callback"
+      oauth_callback_url: "https://{{ cookiecutter.hostname }}/hub/oauth_callback"
       allowed_organizations:
         - aiidalab
       admin_users:

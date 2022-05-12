@@ -62,11 +62,8 @@ resource "azurerm_kubernetes_cluster" "k8s" {
     client_secret = var.aks_service_principal_client_secret
   }
 
-  addon_profile {
-    oms_agent {
-      enabled                    = true
-      log_analytics_workspace_id = azurerm_log_analytics_workspace.test.id
-    }
+  oms_agent {
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.test.id
   }
 
   network_profile {
@@ -86,8 +83,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "user" {
 
   # Autoscaling configuration
   enable_auto_scaling = true
-  node_count          = 0
-  min_count           = 0
+  node_count          = 1
+  min_count           = 1
   max_count           = 2
 
   node_labels = {

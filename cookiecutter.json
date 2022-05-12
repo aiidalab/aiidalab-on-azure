@@ -1,5 +1,6 @@
 {
-  "host_domain": "aiidalab.example.com",
+  "hostname": "aiidalab.example.com",
+  "dns_zone_name": "{{ cookiecutter.hostname.split('.')[-2:] | join('.') }}",
   "aiidalab_default_apps": "quantum-espresso",
   "aiidalab_factory_reset": "",
   "contact_email": "simon.adorf@epfl.ch",
