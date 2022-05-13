@@ -6,8 +6,9 @@ proxy:
         - "{{ cookiecutter.hostname }}"
       letsencrypt:
         contactEmail: "{{ cookiecutter.contact_email }}"
-    annotations:
-      "external-dns.alpha.kubernetes.io/hostname": "{{ cookiecutter.hostname }}"
+    service:
+        annotations:
+          "external-dns.alpha.kubernetes.io/hostname": "{{ cookiecutter.hostname }}"
 
 singleuser:
   image:

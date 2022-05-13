@@ -1,11 +1,10 @@
-resource "azurerm_resource_group" "dns-zone-rg" {
-  name     = var.dns_zone_resource_group_name
-  location = var.resource_group_location
+data "azurerm_resource_group" "dns_zone_rg" {
+  name = var.dns_zone_resource_group_name
 }
 
-resource "azurerm_dns_zone" "root" {
+data "azurerm_dns_zone" "root" {
   name                = var.dns_zone_name
-  resource_group_name = azurerm_resource_group.dns-zone-rg.name
+  resource_group_name = var.dns_zone_resource_group_name
 }
 
 data "azurerm_subscription" "current" {
@@ -34,7 +33,7 @@ resource "helm_release" "external_dns" {
 
   set {
     name  = "azure.resourceGroup"
-    value = azurerm_resource_group.dns-zone-rg.name
+    value = data.azurerm_resource_group.dns_zone_rg.name
   }
 
   set_sensitive {
