@@ -1,0 +1,9 @@
+{
+  "dns_zone_name": null,
+  "resource_group_name": "dns-zones",
+  "location": "eastus",
+  "tfstate_resource_group_name": "tfstate",
+  "tfstate_container_name": "{{ cookiecutter.tfstate_resource_group_name }}",
+  "tfstate_storage_account_name": "{{ 'ARM_STORAGE_ACCOUNT_NAME' | getenv }}",
+  "_extensions": ["jinja2_getenv_extension.GetenvExtension"]
+}

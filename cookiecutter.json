@@ -1,7 +1,6 @@
 {
   "hostname": "aiidalab.example.com",
   "dns_zone_name": "{{ cookiecutter.hostname.split('.')[-2:] | join('.') }}",
-  "create_dns_zone": 0,
   "location": "eastus",
   "aks_service_principal_app_id": "{{ cookiecutter.aks_service_principal_app_id }}",
   "aks_service_principal_client_secret": "{{ cookiecutter.aks_service_principal_client_secret }}",
