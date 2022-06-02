@@ -13,9 +13,9 @@ module "cluster" {
   resource_group_name                 = azurerm_resource_group.rg.name
   cluster_name                        = var.cluster_name
   ssh_public_key                      = var.ssh_public_key
-  aks_service_principal_app_id        = var.aks_service_principal_app_id
-  aks_service_principal_client_secret = var.aks_service_principal_client_secret
-  aks_service_principal_object_id     = var.aks_service_principal_object_id
+  aks_service_principal_app_id        = var.arm_client_id
+  aks_service_principal_client_secret = var.arm_client_secret
+  aks_service_principal_object_id     = var.arm_client_object_id
 }
 
 provider "helm" {
@@ -30,9 +30,9 @@ provider "helm" {
 }
 module "aiidalab" {
   source                              = "./modules/aiidalab"
-  aks_service_principal_app_id        = var.aks_service_principal_app_id
-  aks_service_principal_client_secret = var.aks_service_principal_client_secret
-  aks_service_principal_object_id     = var.aks_service_principal_object_id
+  aks_service_principal_app_id        = var.arm_client_id
+  aks_service_principal_client_secret = var.arm_client_secret
+  aks_service_principal_object_id     = var.arm_client_object_id
 
   dns_zone_name                = var.dns_zone_name
   dns_zone_resource_group_name = var.dns_zone_resource_group_name

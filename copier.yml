@@ -1,2 +1,99 @@
+---
 _subdirectory: template
-_templates_suffix: ""
+_templates_suffix: ''
+
+azurerm_storage_account_name:
+    type: str
+    help: |
+        The name of the storage account that is used to maintain the terraform
+        states within your administrative unit. Your unit administrator has likely
+        already created a storage account for your unit.
+
+azurerm_storage_account_rg:
+    type: str
+    help: The name of the resource group that contains the storage account.
+
+azurerm_container_name:
+    type: str
+    help: |
+        The container name user to maintain terraform states within the storage
+        account.
+
+hostname:
+    type: str
+    help: Fully qualified domain name of where the deployment is reachable.
+    placeholder: aiidalab.contoso.com
+
+resource_group_location:
+    type: str
+    help: The location on where to create this deployment.
+    default: eastus
+
+dns_zone:
+    type: str
+    default: "{{ '.'.join(hostname.strip().rstrip('.').split('.')[1:]) }}"
+    help: |
+        The name of the DNS zone. Leave empty to skip the automated DNS zone
+        configuration.
+
+
+dns_zone_rg_name:
+    type: str
+    when: '{{ dns_zone }}'
+    help: The name of the resource group that contains the DNS zone.
+
+create_dns_zone:
+    type: bool
+    default: false
+    when: '{{ dns_zone }}'
+    help: |
+        Whether to create the DNS zone. Only use this if you are authorized
+        to administrate the DNS zone.
+
+contact_email:
+    type: str
+    help: |
+        The email address to use for the contact for the Let's Encrypt certificate.
+        This is used to contact you for any issues with the certificate.
+
+https_enabled:
+    type: bool
+    default: true
+    help: |
+        Whether to enable HTTPS.
+
+secret_token:
+    type: str
+    default: "{{ 99999999|ans_random|hash('sha512')|truncate(32, False, '', 0) }}"
+    help: |
+        The secret token to use for the JupyterHub. This is used to authenticate
+        the JupyterHub.
+
+image_name:
+    type: str
+    default: aiidalab/aiidalab-docker-stack
+    help: |
+        The name of the image to use for the singleuser container.
+
+image_tag:
+    type: str
+    default: latest
+    help: |
+        The tag of the image to use for the singleuser container.
+
+aiidalab_default_apps:
+    type: str
+    default: quantum-espresso
+    help: |
+        The default apps to install.
+
+gh_oauth_client_id:
+    type: str
+    help: |
+        The GitHub OAuth app client id.
+        See https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app
+        for information on how to create a GitHub OAuth app.
+
+gh_oauth_client_secret:
+    type: str
+    help: The GitHub OAuth app client secret.

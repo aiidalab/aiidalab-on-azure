@@ -36,7 +36,7 @@ variable "user_nodes_autoscaling" {
 }
 
 variable "user_nodes_min_count" {
-  default = 1
+  default = 0
 }
 
 variable "user_nodes_max_count" {

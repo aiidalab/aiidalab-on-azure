@@ -1,3 +1,2 @@
-*.tfvars
 .terraform/*
 .terraform.*

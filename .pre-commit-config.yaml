@@ -1,16 +1,27 @@
+---
 repos:
 
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.2.0
-  hooks:
-      - id: check-json
-      - id: check-yaml
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.2.0
+      hooks:
+          - id: check-json
+          - id: check-yaml
+            exclude: values.yml  # it's a Jinja2 template
+          - id: end-of-file-fixer
+          - id: trailing-whitespace
 
-- repo: https://github.com/gruntwork-io/pre-commit
-  rev: v0.1.17
-  hooks:
-    - id: tflint
+    - repo: https://github.com/gruntwork-io/pre-commit
+      rev: v0.1.17
+      hooks:
+          - id: tflint
+            # Work-around for issue that  causes hook to fail on files with
+            # white space in their filename.
+            exclude: \s
     #- id: terraform-validate
-    - id: terraform-fmt
+          - id: terraform-fmt
+
+    - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+      rev: 0.1.1
+      hooks:
+          - id: yamlfmt
+            exclude: values.yml  # it's a Jinja2 template

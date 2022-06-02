@@ -5,6 +5,6 @@ resource "helm_release" "jupyterhub" {
   version    = "1.2.0"
 
   values = [
-    file("${path.module}/values.yml.j2")
+    file("${path.module}/values.yml")
   ]
 }

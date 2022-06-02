@@ -1,19 +1,19 @@
 proxy:
-    secretToken: "{{ cookiecutter.secret_token }}"
+    secretToken: "{{ secret_token }}"
     https:
-      enabled: {{ cookiecutter.https_enabled | default(false) }}
+      enabled: {{ https_enabled | default(false) }}
       hosts:
-        - "{{ cookiecutter.hostname }}"
+        - "{{ hostname }}"
       letsencrypt:
-        contactEmail: "{{ cookiecutter.contact_email }}"
+        contactEmail: "{{ contact_email }}"
     service:
         annotations:
-          "external-dns.alpha.kubernetes.io/hostname": "{{ cookiecutter.hostname }}"
+          "external-dns.alpha.kubernetes.io/hostname": "{{ hostname }}"
 
 singleuser:
   image:
-    name: "{{ cookiecutter.image_name }}"
-    tag: "{{ cookiecutter.image_tag }}"
+    name: "{{ image_name }}"
+    tag: "{{ image_tag }}"
     pullPolicy: Always
   fsGid: 1000
   cmd: /sbin/my_my_init
@@ -21,10 +21,10 @@ singleuser:
     NB_USER: "aiida"
     NB_UID: "1000"
     NB_GID: "1000"
-    AIIDALAB_FACTORY_RESET: "{{ cookiecutter.aiidalab_factory_reset | default('')}}"
-{%- if cookiecutter.aiidalab_default_apps %}
+    AIIDALAB_FACTORY_RESET: "{{ aiidalab_factory_reset | default('')}}"
+{%- if aiidalab_default_apps %}
     AIIDALAB_DEFAULT_APPS: >-
-      {{ cookiecutter.aiidalab_default_apps.split() | join('\n') | indent(6) }}
+      {{ aiidalab_default_apps.split() | join('\n') | indent(6) }}
 {%- endif %}
   storage:
     homeMountPath: "/home/aiida"
@@ -44,9 +44,9 @@ hub:
     JupyterHub:
       authenticator_class: github
     GitHubOAuthenticator:
-      client_id: "{{ cookiecutter.oauth_client_id }}"
-      client_secret: "{{ cookiecutter.oauth_client_secret }}"
-      oauth_callback_url: "https://{{ cookiecutter.hostname }}/hub/oauth_callback"
+      client_id: "{{ gh_oauth_client_id }}"
+      client_secret: "{{ gh_oauth_client_secret }}"
+      oauth_callback_url: "https://{{ hostname }}/hub/oauth_callback"
       allowed_organizations:
         - aiidalab
       admin_users:
@@ -78,6 +78,9 @@ hub:
       c.JupyterHub.logo_file = "aiidalab-logo.png"
 
 scheduling:
+  userPlaceholder:
+    enabled: true
+    replicas: 3
   userPods:
     nodeAffinity:
       # matchNodePurpose valid options:
