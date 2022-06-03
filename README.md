@@ -2,7 +2,7 @@
 ## How to deploy AiiDAlab on an Azure Kubernetes Service (AKS)
 ### Prerequisites
 
-### Setup Azure CLI
+#### Setup Azure CLI
 
 Either us the [Azure cloud shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview) on the Azure portal or follow the instructions here to install the Azure CLI: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
 
@@ -25,10 +25,10 @@ If you are the administrator of the storage account, you can create a new storag
 
 #### Service Account Principal
 
-You also need a service account principal to be able to deploy the AiiDAlab on Azure.
+You also need a service account principal for terraform to setup the Kubernetes cluster and use the Helm provider.
 
-Your administrator might have already created a service account principal for you.
-In this case ask them to provide:
+Your administrator might have already created a service account principal for you in which case, ask them to provide:
+
 - the service account principal app id
 - the service account principal password
 - the service account object id
@@ -47,7 +47,7 @@ In this way they will be automatically picked up by terraform and you do not nee
 
 ##### How to create a service account principal
 
-To obtain the service principal credentials, you need to follow the instructions here: https://docs.microsoft.com/en-us/azure/developer/terraform/authenticate-to-azure?tabs=bash#create-a-service-principal
+In case that you have to obtain service principal credentials yourself, please follow the instructions here: https://docs.microsoft.com/en-us/azure/developer/terraform/authenticate-to-azure?tabs=bash#create-a-service-principal
 The service credential object id can be obtained via the portal or by executing the following command:
 ```
 az ad sp list --display-name "<display_name>" --query "[].{\"Object ID\":objectId}" --output table
@@ -58,7 +58,7 @@ See also: https://docs.microsoft.com/en-us/azure/developer/terraform/create-k8s-
 
 You do not need to create a DNS zone to deploy AiiDAlab however doing so will allow you to automatically configure the DNS entry for your deployment.
 
-**IMPORTANT**: Manipulating DNS settings has can be extremely destructive and has the potential to disrupt all deployments routed on the associated domain.
+**IMPORTANT**: Manipulating DNS settings has the potential to be very destructive to disrupt all deployments routed on the associated domain.
 Please make sure that you have the authority to manage DNS zones.
 In doubt, ask your unit administrator whether a DNS zone has already been created.
 
