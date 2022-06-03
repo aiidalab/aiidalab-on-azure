@@ -6,28 +6,36 @@ azurerm_storage_account_name:
     type: str
     help: |
         The name of the storage account that is used to maintain the terraform
-        states within your administrative unit. Your unit administrator has likely
-        already created a storage account for your unit.
+        state.
 
 azurerm_storage_account_rg:
     type: str
+    default:
     help: The name of the resource group that contains the storage account.
 
 azurerm_container_name:
     type: str
+    default:
     help: |
-        The container name user to maintain terraform states within the storage
+        The container name used to maintain terraform states within the storage
         account.
 
 hostname:
     type: str
-    help: Fully qualified domain name of where the deployment is reachable.
+    default:
     placeholder: aiidalab.contoso.com
+    help: |
+        Fully qualified domain name of where the deployment is going to be reachable.
 
 resource_group_location:
     type: str
-    help: The location on where to create this deployment.
     default: eastus
+    help: |
+        The geographic location where the resources for this deployment are
+        created.  Typically you want this to be close to where the majority of
+        your users are located however there are also other aspects that can be
+        considered such as availability of specific resources and costs. If in
+        doubt, just go with the default.
 
 dns_zone:
     type: str
@@ -36,9 +44,9 @@ dns_zone:
         The name of the DNS zone. Leave empty to skip the automated DNS zone
         configuration.
 
-
 dns_zone_rg_name:
     type: str
+    default:
     when: '{{ dns_zone }}'
     help: The name of the resource group that contains the DNS zone.
 
@@ -47,24 +55,28 @@ create_dns_zone:
     default: false
     when: '{{ dns_zone }}'
     help: |
-        Whether to create the DNS zone. Only use this if you are authorized
-        to administrate the DNS zone.
+        Set to true to create the DNS zone. This is only needed if the DNS zone
+        has not been created previously. If in doubt, do not create the zone,
+        but ask your unit administrator.
 
 contact_email:
     type: str
+    default:
     help: |
         The email address to use for the contact for the Let's Encrypt certificate.
         This is used to contact you for any issues with the certificate.
 
 https_enabled:
     type: bool
-    default: true
+    default: false
     help: |
-        Whether to enable HTTPS.
+        Whether to enable HTTPS. Do not enable this until after an initial
+        successful deployment.
 
 secret_token:
     type: str
     default: "{{ 99999999|ans_random|hash('sha512')|truncate(32, False, '', 0) }}"
+    secret: true
     help: |
         The secret token to use for the JupyterHub. This is used to authenticate
         the JupyterHub.
@@ -89,6 +101,7 @@ aiidalab_default_apps:
 
 gh_oauth_client_id:
     type: str
+    default:
     help: |
         The GitHub OAuth app client id.
         See https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app
@@ -96,4 +109,6 @@ gh_oauth_client_id:
 
 gh_oauth_client_secret:
     type: str
+    default:
+    secret: true
     help: The GitHub OAuth app client secret.
