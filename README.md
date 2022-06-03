@@ -1,102 +1,219 @@
+# AiiDAlab on Azure
 
-## How to deploy AiiDAlab on an Azure Kubernetes Service (AKS)
-### Prerequisites
+This repository contains instructions and template files to deploy an [AiiDAlab](https://www.aiidalab.net) JupyterHub instance on Azure using the [Azure Kubernetes Service (AKS)](https://docs.microsoft.com/en-us/azure/aks/) and [Terraform](https://www.terraform.io/).
 
-#### Setup Azure CLI
+## Create an AiiDAlab deployment on Azure (with AKS)
 
-Either us the [Azure cloud shell](https://docs.microsoft.com/en-us/azure/cloud-shell/overview) on the Azure portal or follow the instructions here to install the Azure CLI: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest
+_Documentation is partially adapted from [here](https://docs.microsoft.com/en-us/azure/developer/terraform/create-k8s-cluster-with-tf-and-aks#1-configure-your-environment)._
 
-#### Azure Resource Manager Storage Account
+### 1. Learn the Terraform basics
 
-Using the template here, terraform maintains the state of your infrastructure both locally and in a dedicated storage account on Azure.
-Using a storage account serves as backup for your terraform state and allows multiple users to work on the same infrastructure.
-You should therefore store the terraform state in a subscription-wide accessible storage account so that it is backed up and can be shared among users.
+If you are not familiar with the purpose and basic use of Terraform yet, we recommend that you read the [Terraform Introduction](https://www.terraform.io/intro) and the [Terraform Core Workflow](https://www.terraform.io/intro/core-workflow) before proceeding.
 
-Typically, the administrator for your unit will already have created a storage account for you.
-Please ask your unit administrator to provide you with the following credentials:
+### 2. Configure your environment
+
+
+- **Azure subscription**: If you don't have an Azure subscription, create a [free account](https://azure.microsoft.com/free/?ref=microsoft.com&utm_source=microsoft.com&utm_medium=docs&utm_campaign=visualstudio) before you begin.
+
+- **Configure Terraform:** If you haven't already done so, configure Terraform using one of the following options:
+
+    - [Configure Terraform in Azure Cloud Shell with Bash](https://docs.microsoft.com/en-us/azure/developer/terraform/get-started-cloud-shell-bash)
+    - [Configure Terraform in Azure Cloud Shell with PowerShell](https://docs.microsoft.com/en-us/azure/developer/terraform/get-started-cloud-shell-powershell)
+    - [Configure Terraform in Windows with Bash](https://docs.microsoft.com/en-us/azure/developer/terraform/get-started-windows-bash)
+    - [Configure Terraform in Windows with PowerShell](https://docs.microsoft.com/en-us/azure/developer/terraform/get-started-windows-powershell)
+
+- **Azure service principal:** If you or your unit administrator has not yet created a service principal, follow the instructions [here](https://docs.microsoft.com/en-us/azure/developer/terraform/authenticate-to-azure#create-a-service-principal) and make note of the `appId`, `display_name`, `password`, and `tenant`.
+
+  Run the following command to get the object ID of the service principal: `az ad sp list --display-name "<display_name>" --query "[].{\"Object ID\":objectId}" --output table`
+
+  **Do not store the service principal credentials within your deployment repository in plain text.**
+  We recommend to store them as environment variables in your deployment environment.
+  For example, edit your `~/.bashrc` file and add the following lines:
+  ```
+  export TF_VAR_arm_client_id="<service_principal_appid>"
+  export TF_VAR_arm_client_secret="<service_principal_password>"
+  export TF_VAR_arm_client_object_id="<service_principal_object_id>"
+  ```
+  In this way they are automatically picked up by Terraform when needed and you do not have to manually provide them.
+
+- **SSH key pair**: Use the information in one of the following articles to create an SSH key pair:
+
+    - [Portal](https://docs.microsoft.com/en-us/azure/virtual-machines/ssh-keys-portal#generate-new-keys)
+    - [Windows](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/ssh-from-windows#create-an-ssh-key-pair)
+    - [Linux/MacOS](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys#create-an-ssh-key-pair)
+
+### 3. Configure Azure storage to store Terraform state
+
+Your unit administrator may have already created an Azure storage account to store Terraform state for your unit, in which case please ask them to provide:
 
 - The Azure storage account name.
 - The resource group name of the storage account.
 - The storage account terraform container name.
 
-You will have to provide the information during the setup of the first deployment after which they are stored locally such that you do not need enter them manually each time.
+Otherwise, please follow the instructions [here](https://github.com/MicrosoftDocs/azure-dev-docs/blob/main/articles/terraform/create-k8s-cluster-with-tf-and-aks.md#2-configure-azure-storage-to-store-terraform-state) to create a storage account to store Terraform state.
 
-If you are the administrator of the storage account, you can create a new storage account by following the instructions here: https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create
+Please note down the information listed above, you will need it later during the setup process.
 
-#### Service Account Principal
+### 4. Create the AiiDAlab Terraform deployment directory
 
-You also need a service account principal for terraform to setup the Kubernetes cluster and use the Helm provider.
+1. Decide on a **deployments directory**.
 
-Your administrator might have already created a service account principal for you in which case, ask them to provide:
+   We recommend to keep all Terraform resources created with this template in a dedicated and backed up location.
+   For example, assuming that you are deploying from the Azure Cloud shell, you could store them directly in the `~/clouddrive` directory.
 
-- the service account principal app id
-- the service account principal password
-- the service account object id
+   Using this template, all resource directories are automatically named by their associated hostname.
+   Following the example above, an AiiDAlab deployment at `aiidalab.contoso.com` would be stored in `~/clouddrive/aiidalab.contoso.com`.
 
-**IMPORTANT: DO NOT STORE THESE CREDENTIALS IN PLAIN TEXT IN YOUR REPOSITORY.**
+   *Tip:* We recommend to track the deployments directory with git to naturally track changes to all deployments.
+   This will also allow you to update and migrate existing deployments (see section *Update deployments*).
 
-Instead, we recommend to store them as environment variables in your local development environment.
-For example, edit your `~/.bashrc` file and add the following lines:
+2. Decide on a hostname for your deployment.
+
+   This will be a domain where you can access your AiiDAlab deployment, e.g., `aiidalab.contoso.com`.
+   It is important that you have control over the DNS setting for the associated domain, in this case `contoso.com`.
+   Please see the section on DNS-zones for automated DNS configuration.
+
+3. Create a GitHub OAuth application
+
+   By default, this template uses GitHub for user authentication, meaning that users must have a GitHub account to register and log in.
+   [There are many other ways to authenticate users](https://zero-to-jupyterhub.readthedocs.io/en/latest/administrator/authentication.html) which you can manually configure if desired.
+
+   Please follow the [GitHub documentation](https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app) to create a GitHub OAuth app.
+   The app name is o your choice, e.g., `Contoso-AiiDAlab`.
+   The _Homepage URL_ should be the full URL to your deployment, e.g., `https://aiidalab.contoso.com`.
+   The _Authorization Callback URL_ for our example would then be `https://aiidalab.contoso.com/hub/oauth_callback`.
+
+4. Install copier
+
+   We use [copier](https://copier.readthedocs.io/en/stable/) to create an instance from this template.
+   If needed, install Python 3.7 or newer and Git 2.72 or newer into your deployment environment.
+   Both Python and Git are already installed in the Azure Cloud Shell environment.
+
+   Then install copier with
+   ```
+   $ pip install pipx && pipx install copier
+   ```
+
+5. Create the deployment directory
+
+   Finally, run the following command to create the Terraform deployment directory:
+   ```
+   $ copier gh:aiidalab/aiidalab-on-azure ~/clouddrive
+   ```
+   Where the last argument is your previously created deployments directory.
+
+### 5. Use Terraform to create the deployment
+
+To create the deployment, switch into your _deployment directory_, e.g., `cd ~/clouddrive/aiidalab.contoso.com`, and run the following command:
+
 ```
-export TF_VAR_arm_client_id="<service_principal_appid>"
-export TF_VAR_arm_client_secret="<service_principal_password>"
-export TF_VAR_arm_client_object_id="<service_principal_object_id>"
+$ terraform init
+
 ```
 
-In this way they will be automatically picked up by terraform and you do not need to enter them on every operation.
+After succesful initialization, run the following command to apply all necessary changes, i.e., create all required resources for your deployment:
 
-##### How to create a service account principal
-
-In case that you have to obtain service principal credentials yourself, please follow the instructions here: https://docs.microsoft.com/en-us/azure/developer/terraform/authenticate-to-azure?tabs=bash#create-a-service-principal
-The service credential object id can be obtained via the portal or by executing the following command:
 ```
-az ad sp list --display-name "<display_name>" --query "[].{\"Object ID\":objectId}" --output table
+$ terraform apply
 ```
-See also: https://docs.microsoft.com/en-us/azure/developer/terraform/create-k8s-cluster-with-tf-and-aks#1-configure-your-environment
 
-#### DNS-zone
+Make sure to _review_ the planned changes before applying them by confirming with `yes`.
 
-You do not need to create a DNS zone to deploy AiiDAlab however doing so will allow you to automatically configure the DNS entry for your deployment.
+### 6. Monitor and maintain the deployment
 
-**IMPORTANT**: Manipulating DNS settings has the potential to be very destructive to disrupt all deployments routed on the associated domain.
-Please make sure that you have the authority to manage DNS zones.
-In doubt, ask your unit administrator whether a DNS zone has already been created.
+In order to interact with the Kubernetes cluster and for example check the status of individual nodes or pods, you first need to configure `kubectl` to use the `kubeconfig` of the cluster.
 
-The template wizard will ask whether you want to create a DNS zone during setup.
-You should not do this unless you are the administrator of the affected domain and are positive that you no one else has already created a DNS zone for the affected domain.
+1. Change into your deployment directory (e.g. `cd ~/clouddrive/aiidalab.contoso.com`).
+2. Create a kubeconfig file with the following command:
+   ```
+   $ echo "$(terraform output --raw kube_config)" > ./kubeconfig
+   ```
+3. Set the `KUBECONFIG` environment variable to point to the kubeconfig file we just created:
+   ```
+   $ KUBECONFIG=./kubeconfig
+   ```
+4. Finally, check whether you can access the cluster, e.g., with the `kubectl get node` command.
 
-## Deploy AiiDAlab
+*Tip:* The deployment directory contains a script that performs steps 2 and 3 for you with `source setup-kubeconfig`.
 
-We recommend to keep all terraform resources created with this template in a dedicated and backed up location on your local machine, for example in a directory called `~/terraform-deployments`.
-The individual resource directories are then automatically named by the associated hostname.
-For example, an AiiDAlab deployment with hostname `aiidalab.contoso.com` will be stored in `~/terraform-deployments/aiidalab.contoso.com`.
-The associated DNS zone would be stored in `~/terraform-deployments/contoso.com.`.
+### 7. Configure your domain
 
-1. Decide which hostname you will use for your deployment, e.g. `aiidalab.contoso.com` with a top-level domain under your control. See the DNS-zone section on how to create and automatically use a DNS zone.
-1. By default, we use GitHub for authentication. For this we need to create a GitHub OAuth app that you can create by following the instructions on https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app. The hostname should be the one you choose beforehand, the callback url is `${HOSTNAME}/hub/oauth_callback`.
-1. Create a Python environment with Python 3.8 or newer.
-1. Install Git 2.27 or newer.
-1. Install pipx with `pip install pipx`.
-1. Install copier with `pipx install copier`.
-1. Create a new deployment with `copier https://github.com/aiidalab/aiidalab-on-azure ~/terraform-deployments` and follow the instructions.
-1. Switch into the directory created for the deployment (e.g. `~/terraform-deployments/aiidalab.contoso.com`) and initialize the terraform setup by running `terraform init`.
-1. Create the deployment by running `terraform apply`.
+We recommend to use DNS-zones for automated DNS configuration (see section on *DNS-zones*).
+If you are not using DNS zones, you will have to set an A or C record for your domain.
 
-## Monitor and maintain the cluster
+1. Obtain the IP for your deployment from Terraform:
+   ```
+   $ kubectl -n default get svc proxy-public -o jsonpath='{.status.loadBalancer.ingress[].ip}'
+   ```
+2. Go to your DNS registrar and add an A record or C record for your domain.
 
-1. First, obtain the KUBECONFIG file with the command `echo "$(terraform output kube_config)" > ./azurek8s`. You might have to remove EOT characters from the file.
-1. Then set the KUBECONFIG environment variable to the file you just created with `KUBECONFIG=./azurek8s`.
-1. Check that you are able to access the cluster with the command `kubectl get nodes`.
+   Use an A record if the address is an actual IP address of the form 123.123.123.123 and a C record
+   if the address is a domain name.
 
-## Tear down deployment
+Depending on your registrar, it might take a few minutes to many hours for the DNS record to propagate.
+### 8. Enable https
+
+After the deployment is created, verify that you can reach it under the specified hostname, (e.g. `aiidalab.contoso.com`) for example on the command line with
+```
+$ curl -k https://aiidalab.contoso.com
+```
+or by checking the DNS propagation explicitly with an online tool in your browser, e.g., `https://dnschecker.org/#A/aiidalab.contoso.com`.
+
+After having verified that your deployment is reachable under the specified hostname, enable https by either performing a copier update
+```
+$ cd clouddrive/
+$ copier update
+```
+and answering with yes to the prompt for enabling https, or by manually editing the `modules/aiidalab/values.yml` file and changing the following section:
+```
+proxy:
+   ...
+   https:
+      enabled: True   # changed from False
+```
+
+Apply the change by running
+```
+$ terraform apply
+```
+
+### 9. Tear down deploymet
 
 To tear down a deployment, simply go to the corresponding resource and run `terraform destroy`.
 After that you can delete the GitHub OAuth app in case that you used it for authentication.
 
-**Due to a bug, the DNS entry must be deleted manually.**
+Note: The DNS zone entry will not be automatically deleted (see also section on *Known limitations*).
 
-## Known issues
+## Update deployments
 
-1. The DNS entry is not properly removed after destroying the deployment.
-1. The GitHub OAuth client secret is stored in plain text in the JupyterHub helm release configuration.
-1. Sometimes the SSL certificate of the JupyterHub service is not properly configured. It can help to restart the autohttps pod.
+In order to update an existing deployment to either change the configuration or adapt recent improvements to this template, make sure to track your deployments directory with git and commit all changes.
+
+Then perform a [copier update](https://copier.readthedocs.io/en/stable/updating/) by switching into your deployments directory and running
+```
+$ copier update
+```
+
+The update process will walk you through the questionaire and potentially request all needed information.
+Answers that were already provided in the previous deployment will be reused.
+
+## DNS-zones
+
+You do not need to create a DNS zone to deploy AiiDAlab however doing so will allow you to automatically configure the DNS entry for your deployment.
+
+**IMPORTANT**: Manipulating DNS settings can be a very destructive action with the potential to disrupt all deployments routed on the associated domain.
+Please make sure that you have the authority to manage DNS zones and/or ask your unit administrator whether a DNS zone has already been created.
+
+To create a DNS zone, answer the prompt about whether to create a DNS zone with yes.
+This will create a corresponding deployment directory of the form `contoso.com.` to your deployments directory (the trailing dot indicates the root zone and helps to distinguish between dns-zone deployment directories and other deployments).
+To create the zone, simply switch into the directory and then initialize Terraform with `$ terraform init` followed by `$ terraform apply` to create the zone.
+
+## Known limitations
+
+- **The GitHub OAuth client secret is stored in plain text in the JupyterHub helm release configuration.**
+- A DNS entry configured automatically within a DNS zone is not going to be automatically removed when the deployment is torn down. This is not an issue per-se since the record is going to be updated when the deployment is re-created, however you might want to remove the entry manually to avoid confusion.
+
+
+## LICENSE
+
+Code within this repository is licensed under the [MIT license](license).
+The documentation is licensed under the [CC-BY-4.0 license](license-docs) and was partially adapted from https://github.com/MicrosoftDocs/azure-dev-docs.
