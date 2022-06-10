@@ -112,3 +112,27 @@ gh_oauth_client_secret:
     default:
     secret: true
     help: The GitHub OAuth app client secret.
+
+gh_oauth_admin_users:
+    type: str
+    default:
+    placeholder: jdoe jsmith
+    help: |
+        Users listed here are granted admin access to the JupyterHub. Specify
+        multiple users through white space delimitation.
+
+gh_oauth_allowed_organizations:
+    type: str
+    placeholder: contoso myorg
+    help: |
+        Restrict the login to users who are members of any of the specified
+        organizations. Specify multiple organizations through white space
+        delimitation.
+
+gh_oauth_allowed_users:
+    type: str
+    default:
+    placeholder: jdoe jsmith
+    help: |
+        Restrict the login to users who are listed here. Specify multiple users
+        through white space delimitation.
