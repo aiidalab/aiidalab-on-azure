@@ -52,7 +52,7 @@ Your unit administrator may have already created an Azure storage account to sto
 
 Otherwise, please follow the instructions [here](https://github.com/MicrosoftDocs/azure-dev-docs/blob/main/articles/terraform/create-k8s-cluster-with-tf-and-aks.md#2-configure-azure-storage-to-store-terraform-state) to create a storage account to store Terraform state.
 
-Please note down the information listed above, you will need it later during the setup process.
+Make note of the information listed above, it will be needed later during the setup process.
 
 ### 4. Create the AiiDAlab Terraform deployment directory
 
@@ -67,13 +67,13 @@ Please note down the information listed above, you will need it later during the
    *Tip:* We recommend to track the deployments directory with git to naturally track changes to all deployments.
    This will also allow you to update and migrate existing deployments (see section *Update deployments*).
 
-2. Decide on a hostname for your deployment.
+2. Decide on a **hostname** for your deployment.
 
    This will be a domain where you can access your AiiDAlab deployment, e.g., `aiidalab.contoso.com`.
    It is important that you have control over the DNS setting for the associated domain, in this case `contoso.com`.
    Please see the section on DNS-zones for automated DNS configuration.
 
-3. Create a GitHub OAuth application
+3. Create a **GitHub OAuth application**
 
    By default, this template uses GitHub for user authentication, meaning that users must have a GitHub account to register and log in.
    [There are many other ways to authenticate users](https://zero-to-jupyterhub.readthedocs.io/en/latest/administrator/authentication.html) which you can manually configure if desired.
@@ -83,7 +83,7 @@ Please note down the information listed above, you will need it later during the
    The _Homepage URL_ should be the full URL to your deployment, e.g., `https://aiidalab.contoso.com`.
    The _Authorization Callback URL_ for our example would then be `https://aiidalab.contoso.com/hub/oauth_callback`.
 
-4. Install copier
+4. Install **copier**
 
    We use [copier](https://copier.readthedocs.io/en/stable/) to create an instance from this template.
    If needed, install Python 3.7 or newer and Git 2.72 or newer into your deployment environment.
@@ -94,13 +94,13 @@ Please note down the information listed above, you will need it later during the
    $ pip install pipx && pipx install copier
    ```
 
-5. Create the deployment directory
+5. Create the **deployment** directory
 
    Finally, run the following command to create the Terraform deployment directory:
    ```
    $ copier gh:aiidalab/aiidalab-on-azure ~/clouddrive
    ```
-   Where the last argument is your previously created deployments directory.
+   Where the last argument is your previously created deployment*s* directory.
 
 ### 5. Use Terraform to create the deployment
 
@@ -132,9 +132,9 @@ In order to interact with the Kubernetes cluster and for example check the statu
    ```
    $ KUBECONFIG=./kubeconfig
    ```
-4. Finally, check whether you can access the cluster, e.g., with the `kubectl get node` command.
+4. Finally, check whether you can access the cluster, e.g., with the `$ kubectl get node` command.
 
-*Tip:* The deployment directory contains a script that performs steps 2 and 3 for you with `source setup-kubeconfig`.
+*Tip:* The deployment directory contains a script that performs steps 2 and 3 for you with `$ source setup-kubeconfig`.
 
 ### 7. Configure your domain
 
@@ -195,6 +195,7 @@ $ copier update
 
 The update process will walk you through the questionaire and potentially request all needed information.
 Answers that were already provided in the previous deployment will be reused.
+Please see the *Known limitations* section for limitations with respect to managing multiple deployements using this approach.
 
 ## DNS-zones
 
@@ -207,10 +208,14 @@ To create a DNS zone, answer the prompt about whether to create a DNS zone with 
 This will create a corresponding deployment directory of the form `contoso.com.` to your deployments directory (the trailing dot indicates the root zone and helps to distinguish between dns-zone deployment directories and other deployments).
 To create the zone, simply switch into the directory and then initialize Terraform with `$ terraform init` followed by `$ terraform apply` to create the zone.
 
+## Security considerations
+
+The GitHub OAuth client credentials as well as the JupyterHub secret token are stored in plain text within the deployment directory and must for that reason not be pushed directly to public repositories.
+
 ## Known limitations
 
-- **The GitHub OAuth client secret is stored in plain text in the JupyterHub helm release configuration.**
-- A DNS entry configured automatically within a DNS zone is not going to be automatically removed when the deployment is torn down. This is not an issue per-se since the record is going to be updated when the deployment is re-created, however you might want to remove the entry manually to avoid confusion.
+- A DNS entry configured automatically within a DNS zone is not automatically removed when the deployment is torn down. This is not necessarily an issue since the record is going to be updated when a deployment with the same hostname is re-created, however you might want to remove the entry manually after destroying a deployment to avoid confusion.
+- Managing multiple deployments within the same deployments directory is in principal supported, however updating or migrating deployments can be difficult, because only the last set of answers are stored.
 
 
 ## LICENSE
