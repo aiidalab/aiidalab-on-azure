@@ -216,7 +216,7 @@ The GitHub OAuth client credentials as well as the JupyterHub secret token are s
 
 - A DNS entry configured automatically within a DNS zone is not automatically removed when the deployment is torn down. This is not necessarily an issue since the record is going to be updated when a deployment with the same hostname is re-created, however you might want to remove the entry manually after destroying a deployment to avoid confusion.
 - Managing multiple deployments within the same deployments directory is in principal supported, however updating or migrating deployments can be difficult, because only the last set of answers are stored.
-
+- The questionaire allows for certains answers to be "empty" although a value is required. This appears to be a [bug in copier](https://github.com/copier-org/copier/issues/355).
 
 ## LICENSE
 
