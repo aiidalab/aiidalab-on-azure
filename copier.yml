@@ -1,6 +1,9 @@
 ---
 _subdirectory: template
 _templates_suffix: ''
+_answers_file: .copier-answers.aiidalab-on-azure.yml
+_tasks:
+    - cp '{{ _copier_conf.answers_file }}' '{{ hostname }}/.copier-answers.yml'
 
 azurerm_storage_account_name:
     type: str

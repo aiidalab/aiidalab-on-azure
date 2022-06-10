@@ -190,12 +190,12 @@ In order to update an existing deployment to either change the configuration or 
 
 Then perform a [copier update](https://copier.readthedocs.io/en/stable/updating/) by switching into your deployments directory and running
 ```
-$ copier update
+$ copier -a aiidalab.contoso.com/.copier-answers.yml update
 ```
+where you should replace `aiidalab.contoso.com` with the hostname of the deployment that you want to update.
 
-The update process will walk you through the questionaire and potentially request all needed information.
+The update process will walk you through the questionaire and potentially request newly required information.
 Answers that were already provided in the previous deployment will be reused.
-Please see the *Known limitations* section for limitations with respect to managing multiple deployements using this approach.
 
 ## DNS-zones
 
@@ -215,7 +215,6 @@ The GitHub OAuth client credentials as well as the JupyterHub secret token are s
 ## Known limitations
 
 - A DNS entry configured automatically within a DNS zone is not automatically removed when the deployment is torn down. This is not necessarily an issue since the record is going to be updated when a deployment with the same hostname is re-created, however you might want to remove the entry manually after destroying a deployment to avoid confusion.
-- Managing multiple deployments within the same deployments directory is in principal supported, however updating or migrating deployments can be difficult, because only the last set of answers are stored.
 - The questionaire allows for certains answers to be "empty" although a value is required. This appears to be a [bug in copier](https://github.com/copier-org/copier/issues/355).
 
 ## LICENSE
