@@ -155,7 +155,7 @@ Depending on your registrar, it might take a few minutes to many hours for the D
 
 After the deployment is created, verify that you can reach it under the specified hostname, (e.g. `aiidalab.contoso.com`) for example on the command line with
 ```
-$ curl -k https://aiidalab.contoso.com
+$ curl -k http://aiidalab.contoso.com
 ```
 or by checking the DNS propagation explicitly with an online tool in your browser, e.g., `https://dnschecker.org/#A/aiidalab.contoso.com`.
 
