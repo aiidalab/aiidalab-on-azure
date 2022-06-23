@@ -92,7 +92,7 @@ image_name:
 
 image_tag:
     type: str
-    default: latest
+    default: 22.01.0
     help: |
         The tag of the image to use for the singleuser container.
 
