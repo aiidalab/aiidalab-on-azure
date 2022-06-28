@@ -159,12 +159,12 @@ $ curl -k http://aiidalab.contoso.com
 ```
 or by checking the DNS propagation explicitly with an online tool in your browser, e.g., `https://dnschecker.org/#A/aiidalab.contoso.com`.
 
-After having verified that your deployment is reachable under the specified hostname, enable https by either performing a copier update
+After having verified that your deployment is reachable under the specified hostname, enable https by either performing a copier update (The deployments directory (e.g. `~/clouddrive`) should be git-tracked.)
 ```
 $ cd clouddrive/
 $ copier update
 ```
-and answering with yes to the prompt for enabling https, or by manually editing the `modules/aiidalab/values.yml` file and changing the following section:
+and answering with yes to the prompt for enabling https, or if `~/clouddrive` not git-tracked, manually editing the `modules/aiidalab/values.yml` file and changing the following section:
 ```
 proxy:
    ...
