@@ -155,16 +155,16 @@ Depending on your registrar, it might take a few minutes to many hours for the D
 
 After the deployment is created, verify that you can reach it under the specified hostname, (e.g. `aiidalab.contoso.com`) for example on the command line with
 ```
-$ curl -k https://aiidalab.contoso.com
+$ curl -k http://aiidalab.contoso.com
 ```
 or by checking the DNS propagation explicitly with an online tool in your browser, e.g., `https://dnschecker.org/#A/aiidalab.contoso.com`.
 
-After having verified that your deployment is reachable under the specified hostname, enable https by either performing a copier update
+After having verified that your deployment is reachable under the specified hostname, enable https by either performing a copier update (The deployments directory (e.g. `~/clouddrive`) should be git-tracked.)
 ```
 $ cd clouddrive/
 $ copier update
 ```
-and answering with yes to the prompt for enabling https, or by manually editing the `modules/aiidalab/values.yml` file and changing the following section:
+and answering with yes to the prompt for enabling https, or if `~/clouddrive` not git-tracked, manually editing the `modules/aiidalab/values.yml` file and changing the following section:
 ```
 proxy:
    ...
