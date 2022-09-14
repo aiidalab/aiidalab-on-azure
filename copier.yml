@@ -86,19 +86,19 @@ secret_token:
 
 image_name:
     type: str
-    default: aiidalab/aiidalab-docker-stack
+    default: aiidalab/full-stack
     help: |
         The name of the image to use for the singleuser container.
 
 image_tag:
     type: str
-    default: 22.01.0
+    default: latest
     help: |
         The tag of the image to use for the singleuser container.
 
 aiidalab_default_apps:
     type: str
-    default: quantum-espresso
+    default:
     help: |
         The default apps to install.
 
