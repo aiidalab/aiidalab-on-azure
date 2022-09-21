@@ -15,19 +15,13 @@ singleuser:
     name: "{{ image_name }}"
     tag: "{{ image_tag }}"
     pullPolicy: Always
-  fsGid: 1000
-  cmd: /sbin/my_my_init
-  extraEnv:
-    NB_USER: "aiida"
-    NB_UID: "1000"
-    NB_GID: "1000"
     AIIDALAB_FACTORY_RESET: "{{ aiidalab_factory_reset | default('')}}"
 {%- if aiidalab_default_apps %}
     AIIDALAB_DEFAULT_APPS: >-
       {{ aiidalab_default_apps.split() | join('\n') | indent(6) }}
 {%- endif %}
+  cmd: start-singleuser.sh
   storage:
-    homeMountPath: "/home/aiida"
     dynamic:
       storageClass: managed-premium
 
@@ -37,7 +31,7 @@ singleuser:
   cpu:
     limit: 2.0
     guarantee: .5
-  startTimeout: 600
+  startTimeout: 120
 
 hub:
   config:
@@ -77,14 +71,6 @@ hub:
 
   extraConfig:
     myConfig: |
-
-      c.KubeSpawner.http_timeout = 600
-      # phusion init system needs to run as root
-      c.KubeSpawner.uid = 0
-      # Setting the gid was needed to fix
-      # https://github.com/aiidalab/aiidalab-docker-stack/issues/20
-      c.KubeSpawner.gid = 1000
-
       # insert template path for custom login template
       c.JupyterHub.template_paths.insert(0, "/etc/jupyterhub/templates")
 
