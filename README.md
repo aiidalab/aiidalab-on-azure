@@ -212,6 +212,13 @@ To create the zone, simply switch into the directory and then initialize Terrafo
 
 The GitHub OAuth client credentials as well as the JupyterHub secret token are stored in plain text within the deployment directory and must for that reason not be pushed directly to public repositories.
 
+## Monitoring resources
+
+The Azure AKS cluster that is created by default is configured to also create monitoring resources to provide insights into the cluster health and usage.
+These resources are created within the same resource group and can be accessed directly within the Azure portal by navigating to the Kubernetes service resource itself and then selecting "Monitoring" and then "Insights" in the left navigation bar.
+
+Please see [here](https://learn.microsoft.com/en-us/azure/aks/monitor-aks) for information.
+
 ## Known limitations
 
 - A DNS entry configured automatically within a DNS zone is not automatically removed when the deployment is torn down. This is not necessarily an issue since the record is going to be updated when a deployment with the same hostname is re-created, however you might want to remove the entry manually after destroying a deployment to avoid confusion.
