@@ -36,33 +36,44 @@ singleuser:
 hub:
   config:
     JupyterHub:
-      authenticator_class: github
+      authenticator_class: {{ authenticator_class }}
+{%- if admin_users or allowed_users %}
+    Authenticator:
+{%- if admin_users %}
+      admin_users:
+{%- for user in admin_users.split() %}
+        - {{ user }}
+{%- endfor %}
+{%- endif %}
+{%- if allowed_users %}
+      allowed_users:
+{%- for user in allowed_users.split() %}
+        - {{ user }}
+{%- endfor %}
+{%- endif %}
+{%- endif %}
+{%- if authenticator_class == "nativeauthenticator.NativeAuthenticator" %}
+    NativeAuthenticator:
+      ask_email_on_signup: {{ native_auth_ask_for_email }}
+      check_common_password: {{ native_auth_check_common_password }}
+      minimum_password_length: {{ native_auth_minimum_password_length }}
+{%- endif %}
+{%- if authenticator_class == "github" %}
     GitHubOAuthenticator:
       client_id: "{{ gh_oauth_client_id }}"
       client_secret: "{{ gh_oauth_client_secret }}"
       oauth_callback_url: "https://{{ hostname }}/hub/oauth_callback"
+      scope:
+        - read:user
+{%- if gh_oauth_allowed_organizations %}
+        - read:org
+{%- endif %}
 {%- if gh_oauth_allowed_organizations %}
       allowed_organizations:
 {%- for org in gh_oauth_allowed_organizations.split() %}
         - {{ org }}
 {%- endfor %}
 {%- endif %}
-{%- if gh_oauth_allowed_users %}
-      allowed_users:
-{%- for user in gh_oauth_allowed_users.split() %}
-        - {{ user }}
-{%- endfor %}
-{%- endif %}
-{%- if gh_oauth_admin_users %}
-      admin_users:
-{%- for user in gh_oauth_admin_users.split() %}
-        - {{ user }}
-{%- endfor %}
-{%- endif %}
-      scope:
-        - read:user
-{%- if gh_oauth_allowed_organizations %}
-        - read:org
 {%- endif %}
 
   db:
