@@ -138,6 +138,13 @@ native_auth_check_common_password:
         of common passwords (e.g. 'password' or '1234').
     when: "{{ authenticator_class == 'nativeauthenticator.NativeAuthenticator' }}"
 
+native_auth_open_signup:
+    type: bool
+    default: false
+    help: |
+        Do not require admin approval for new users. Use with caution!
+    when: "{{ authenticator_class == 'nativeauthenticator.NativeAuthenticator' }}"
+
 gh_oauth_client_id:
     type: str
     default:
