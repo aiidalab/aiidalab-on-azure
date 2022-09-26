@@ -208,6 +208,18 @@ To create a DNS zone, answer the prompt about whether to create a DNS zone with 
 This will create a corresponding deployment directory of the form `contoso.com.` to your deployments directory (the trailing dot indicates the root zone and helps to distinguish between dns-zone deployment directories and other deployments).
 To create the zone, simply switch into the directory and then initialize Terraform with `$ terraform init` followed by `$ terraform apply` to create the zone.
 
+## User authentication
+
+JupyterHub on Kubernetes supports a variety of authentication methods, some of which are documented [here](https://zero-to-jupyterhub.readthedocs.io/en/stable/administrator/authentication.html).
+Any of these authenticators can in principle be used, however the template currently supports the automated configuration of the following authenticators:
+- [Native Authenticator](https://native-authenticator.readthedocs.io/en/latest/)
+- [GitHub Authenticator](https://zero-to-jupyterhub.readthedocs.io/en/stable/administrator/authentication.html#github)
+- [First-Use Authenticator](https://github.com/jupyterhub/firstuseauthenticator)
+
+The native authenticator is the default authenticator, it allows users to create their own user profile (which by default must be enabled by an admin user) and maintains its own user database.
+In general, we recommend to use the GitHub authenticator for public tutorials or workshops.
+The first-use authenticator allows any user to sign up with any password and is **not recommended** for public deployments.
+
 ## Security considerations
 
 The GitHub OAuth client credentials as well as the JupyterHub secret token are stored in plain text within the deployment directory and must for that reason not be pushed directly to public repositories.

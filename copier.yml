@@ -102,6 +102,49 @@ aiidalab_default_apps:
     help: |
         The default apps to install.
 
+authenticator_class:
+    type: str
+    default: nativeauthenticator.NativeAuthenticator
+    choices:
+        Native Authenticator: nativeauthenticator.NativeAuthenticator
+        First-Use Authenticator: firstuseauthenticator.FirstUseAuthenticator
+        GitHub Authenticator: github
+    help: |
+        Select which method to use for user authentication. We recommend to use
+        either the native or the GitHub authenticator for deployments that are
+        accessible to the internet. The first-use authenticator should only be
+        used in controlled environments (e.g. a workshop or a classroom), where
+        cluster-access is limited to a specific network.
+
+native_auth_ask_for_email:
+    type: bool
+    default: false
+    help: |
+        Request users' email address during sign-up.
+    when: "{{ authenticator_class == 'nativeauthenticator.NativeAuthenticator' }}"
+
+native_auth_minimum_password_length:
+    type: int
+    default: 8
+    help: |
+        Enforce a minimum password length for the chosen user password.
+    when: "{{ authenticator_class == 'nativeauthenticator.NativeAuthenticator' }}"
+
+native_auth_check_common_password:
+    type: bool
+    default: true
+    help: |
+        Prevent the user from choosing a password that is found in a database
+        of common passwords (e.g. 'password' or '1234').
+    when: "{{ authenticator_class == 'nativeauthenticator.NativeAuthenticator' }}"
+
+native_auth_open_signup:
+    type: bool
+    default: false
+    help: |
+        Do not require admin approval for new users. Use with caution!
+    when: "{{ authenticator_class == 'nativeauthenticator.NativeAuthenticator' }}"
+
 gh_oauth_client_id:
     type: str
     default:
@@ -109,14 +152,25 @@ gh_oauth_client_id:
         The GitHub OAuth app client id.
         See https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app
         for information on how to create a GitHub OAuth app.
+    when: "{{ authenticator_class == 'github' }}"
 
 gh_oauth_client_secret:
     type: str
     default:
     secret: true
     help: The GitHub OAuth app client secret.
+    when: "{{ authenticator_class == 'github' }}"
 
-gh_oauth_admin_users:
+gh_oauth_allowed_organizations:
+    type: str
+    placeholder: contoso myorg
+    help: |
+        Restrict the login to users who are members of any of the specified
+        GitHub organizations. Specify multiple organizations through white
+        space delimitation.
+    when: "{{ authenticator_class == 'github' }}"
+
+admin_users:
     type: str
     default:
     placeholder: jdoe jsmith
@@ -124,15 +178,7 @@ gh_oauth_admin_users:
         Users listed here are granted admin access to the JupyterHub. Specify
         multiple users through white space delimitation.
 
-gh_oauth_allowed_organizations:
-    type: str
-    placeholder: contoso myorg
-    help: |
-        Restrict the login to users who are members of any of the specified
-        organizations. Specify multiple organizations through white space
-        delimitation.
-
-gh_oauth_allowed_users:
+allowed_users:
     type: str
     default:
     placeholder: jdoe jsmith
