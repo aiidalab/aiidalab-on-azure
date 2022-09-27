@@ -15,8 +15,8 @@ singleuser:
     name: "{{ image_name }}"
     tag: "{{ image_tag }}"
     pullPolicy: Always
-    AIIDALAB_FACTORY_RESET: "{{ aiidalab_factory_reset | default('')}}"
 {%- if aiidalab_default_apps %}
+  extraEnv:
     AIIDALAB_DEFAULT_APPS: >-
       {{ aiidalab_default_apps.split() | join('\n') | indent(6) }}
 {%- endif %}
