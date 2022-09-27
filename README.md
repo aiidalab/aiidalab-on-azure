@@ -75,13 +75,15 @@ Make note of the information listed above, it will be needed later during the se
 
    _Note: In case that you do not intend to configure a domain name, e.g., for testing purposes, simply pick a memorable name for this deployment and leave the field for `dns-zone` empty when you are creating the deployments directory._
 
-3. Create a **GitHub OAuth application**
+3. _(optional)_ Create a **GitHub OAuth application**
 
-   By default, this template uses GitHub for user authentication, meaning that users must have a GitHub account to register and log in.
-   [There are many other ways to authenticate users](https://zero-to-jupyterhub.readthedocs.io/en/latest/administrator/authentication.html) which you can manually configure if desired.
+   By default, this template uses the native authenticator for user authentication, meaning that the JupyterHub itself will allow users to create an account and maintain the user database.
+   However, there are other options, please see our section on [user authentication](#user-authentication) for an overview of alternative methods.
+   We generally recommend to use GitHub authentication for publicly accessible production deployments in which case users must have or create a GitHub account to log in.
 
-   Please follow the [GitHub documentation](https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app) to create a GitHub OAuth app.
-   The app name is o your choice, e.g., `Contoso-AiiDAlab`.
+   In case you decide to use GitHub for authentication, please follow the [GitHub documentation](https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app) to create a GitHub OAuth app and make sure to select _GitHub Authenticator_ when asked about authentication methods when creating the deployment directory.
+
+   The app name is of your choice, e.g., `Contoso-AiiDAlab`.
    The _Homepage URL_ should be the full URL to your deployment, e.g., `https://aiidalab.contoso.com`.
    The _Authorization Callback URL_ for our example would then be `https://aiidalab.contoso.com/hub/oauth_callback`.
 
@@ -188,7 +190,7 @@ $ terraform apply
 ### 9. Tear down deploymet
 
 To tear down a deployment, simply go to the corresponding resource and run `terraform destroy`.
-After that you can delete the GitHub OAuth app in case that you used it for authentication.
+After that you you may have to manually clean up external resources (such as a GitHub OAuth app) that were not created by Terraform.
 
 Note: The DNS zone entry will not be automatically deleted (see also section on *Known limitations*).
 
