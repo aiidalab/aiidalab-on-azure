@@ -218,9 +218,10 @@ To create the zone, simply switch into the directory and then initialize Terrafo
 
 JupyterHub on Kubernetes supports a variety of authentication methods, some of which are documented [here](https://zero-to-jupyterhub.readthedocs.io/en/stable/administrator/authentication.html).
 Any of these authenticators can in principle be used, however the template currently supports the automated configuration of the following authenticators:
-- [Native Authenticator](https://native-authenticator.readthedocs.io/en/latest/)
-- [GitHub Authenticator](https://zero-to-jupyterhub.readthedocs.io/en/stable/administrator/authentication.html#github)
-- [First-Use Authenticator](https://github.com/jupyterhub/firstuseauthenticator)
+- [Native Authentication](https://native-authenticator.readthedocs.io/en/latest/)
+- [GitHub Authentication](#github-authentication)
+- [Azure AD Authentication](#azure-ad-single-sign-on-sso)
+- [First-Use Authentication](https://github.com/jupyterhub/firstuseauthenticator)
 
 The native authenticator is the default authenticator, it allows users to create their own user profile (which by default must be enabled by an admin user) and maintains its own user database.
 In general, we recommend to use the GitHub authenticator for public tutorials or workshops.
@@ -236,9 +237,13 @@ The _Authorization Callback URL_ for our example would then be `https://aiidalab
 
 Provide the *Client ID* and *Client Secret*  when prompted in step 5 of [setting up the deployment directory](#4-create-the-aiidalab-terraform-deployment-directory).
 
+_See the [zero-to-jupyterhub documentation](https://zero-to-jupyterhub.readthedocs.io/en/stable/administrator/authentication.html#github) for more information on how to configure authentication via GitHub._
+
 ### Azure AD Single-Sign-On (SSO)
 
-Follow these steps to register your deployment with your Azure Active Directory and thus enable users to access your deployment via Azure SSO.
+_This part of the documentation was partially adapted from [here](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-sign-user-app-registration?tabs=python#register-an-app-by-using-the-azure-portal)._
+
+Follow these steps to register your deployment with your Azure Active Directory (AD) and thus enable users to access your deployment through Azure SSO.
 
 1. Sign into the [Azure portal](https://portal.azure.com).
 2. Search for and select *Active Directory*.
@@ -252,7 +257,7 @@ Follow these steps to register your deployment with your Azure Active Directory 
 
 Provide the *Application (client) ID*, the *client secret value*, and the *Tenant ID* associated with the Azure AD when prompted in step 5 of [setting up the deployment directory](#4-create-the-aiidalab-terraform-deployment-directory).
 
-_This part of the documentation was partially adapted from [here](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-sign-user-app-registration?tabs=python#register-an-app-by-using-the-azure-portal)._
+_See the [zero-to-jupyterhub documentation](https://zero-to-jupyterhub.readthedocs.io/en/stable/administrator/authentication.html#azure-active-directory) for more information on how to configure authentication via Azure AD._
 
 ## Security considerations
 
