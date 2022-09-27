@@ -76,6 +76,13 @@ hub:
 {%- endfor %}
 {%- endif %}
 {%- endif %}
+{%- if authenticator_class == "azuread" %}
+    AzureAdOAuthenticator:
+      client_id: "{{ azure_ad_client_id }}"
+      client_secret: "{{ azure_ad_client_secret }}"
+      tenant_id: "{{ azure_ad_tenant_id }}"
+      oauth_callback_url: "https://{{ hostname }}/hub/oauth_callback"
+{%- endif %}
 
   db:
     pvc:
