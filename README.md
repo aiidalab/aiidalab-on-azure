@@ -84,7 +84,7 @@ Make note of the information listed above, it will be needed later during the se
    It is important that you have control over the DNS setting for the associated domain, in this case `contoso.com`.
    Please see the section on DNS-zones for automated DNS configuration.
 
-   _Note: In case that you do not intend to configure a domain name, e.g., for testing purposes, simply pick a memorable name for this deployment and leave the field for `dns-zone` empty when you are creating the deployments directory._
+   _Note: In case that you do not intend to configure a domain name, e.g., for testing purposes, simply pick a memorable name for this deployment and leave the field for `dns-zone` empty when you are creating the deployment directory._
 
 4. _(optional)_ Create an **external application for authentication**
 
