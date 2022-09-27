@@ -73,6 +73,8 @@ Make note of the information listed above, it will be needed later during the se
    It is important that you have control over the DNS setting for the associated domain, in this case `contoso.com`.
    Please see the section on DNS-zones for automated DNS configuration.
 
+   _Note: In case that you do not intend to configure a domain name, e.g., for testing purposes, simply pick a memorable name for this deployment and leave the field for `dns-zone` empty when you are creating the deployments directory._
+
 3. Create a **GitHub OAuth application**
 
    By default, this template uses GitHub for user authentication, meaning that users must have a GitHub account to register and log in.
@@ -136,12 +138,15 @@ In order to interact with the Kubernetes cluster and for example check the statu
 
 *Tip:* The deployment directory contains a script that performs steps 2 and 3 for you with `$ source setup-kubeconfig`.
 
+
 ### 7. Configure your domain
 
-We recommend to use DNS-zones for automated DNS configuration (see section on *DNS-zones*).
-If you are not using DNS zones, you will have to set an A or C record for your domain.
+_Important: Step 7 can be skipped if you are either using [DNS-zones](#dns-zones) (recommended) or if you only want to test your deployment without a dedicated domain._
+_In the latter case, simply obtain the cluster address as described here and access it directly via http._
 
-1. Obtain the IP for your deployment from Terraform:
+If you are not using DNS zones, you will have to set an A or C record for your domain as described here.
+
+1. Obtain the cluster address for your deployment:
    ```
    $ kubectl -n default get svc proxy-public -o jsonpath='{.status.loadBalancer.ingress[].ip}'
    ```
@@ -153,9 +158,12 @@ If you are not using DNS zones, you will have to set an A or C record for your d
 Depending on your registrar, it might take a few minutes to many hours for the DNS record to propagate.
 ### 8. Enable https
 
+_Important: Step 8 must be skipped if you only want to test your deployment without a dedicated domain or have otherwise no need for the use of https._
+_Authentication methods that require https, such as GitHub authentication will not work in this way._
+
 After the deployment is created, verify that you can reach it under the specified hostname, (e.g. `aiidalab.contoso.com`) for example on the command line with
 ```
-$ curl -k http://aiidalab.contoso.com
+$ curl -kL http://aiidalab.contoso.com
 ```
 or by checking the DNS propagation explicitly with an online tool in your browser, e.g., `https://dnschecker.org/#A/aiidalab.contoso.com`.
 
