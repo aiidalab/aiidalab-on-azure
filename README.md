@@ -56,7 +56,18 @@ Make note of the information listed above, it will be needed later during the se
 
 ### 4. Create the AiiDAlab Terraform deployment directory
 
-1. Decide on a **deployments directory**.
+1. Install **copier**
+
+   We use [copier](https://copier.readthedocs.io/en/stable/) to create an instance from this template.
+   If needed, install Python 3.7 or newer and Git 2.72 or newer into your deployment environment.
+   Both Python and Git are already installed in the Azure Cloud Shell environment.
+
+   Then install copier with
+   ```
+   $ pip install pipx && pipx install copier
+   ```
+
+2. Decide on a **deployments directory**.
 
    We recommend to keep all Terraform resources created with this template in a dedicated and backed up location.
    For example, assuming that you are deploying from the Azure Cloud shell, you could store them directly in the `~/clouddrive` directory.
@@ -67,7 +78,7 @@ Make note of the information listed above, it will be needed later during the se
    *Tip:* We recommend to track the deployments directory with git to naturally track changes to all deployments.
    This will also allow you to update and migrate existing deployments (see section *Update deployments*).
 
-2. Decide on a **hostname** for your deployment.
+3. Decide on a **hostname** for your deployment.
 
    This will be a domain where you can access your AiiDAlab deployment, e.g., `aiidalab.contoso.com`.
    It is important that you have control over the DNS setting for the associated domain, in this case `contoso.com`.
@@ -75,24 +86,13 @@ Make note of the information listed above, it will be needed later during the se
 
    _Note: In case that you do not intend to configure a domain name, e.g., for testing purposes, simply pick a memorable name for this deployment and leave the field for `dns-zone` empty when you are creating the deployments directory._
 
-3. _(optional)_ Create an **external application for authentication**
+4. _(optional)_ Create an **external application for authentication**
 
    By default, this template uses the native authenticator for user authentication, meaning that the JupyterHub itself will allow users to create an account and maintain the user database.
    However, there are other options, please see our section on [user authentication](#user-authentication) for an overview of alternative methods.
    We generally recommend to use GitHub authentication for publicly accessible production deployments in which case users must have or create a GitHub account to log in.
 
    Please follow the detailed instructions for setting up an application with either [GitHub](#github-authentication) or [Azure AD](#azure-ad-single-sign-on-sso) if you decide to use any of these two methods.
-
-4. Install **copier**
-
-   We use [copier](https://copier.readthedocs.io/en/stable/) to create an instance from this template.
-   If needed, install Python 3.7 or newer and Git 2.72 or newer into your deployment environment.
-   Both Python and Git are already installed in the Azure Cloud Shell environment.
-
-   Then install copier with
-   ```
-   $ pip install pipx && pipx install copier
-   ```
 
 5. Create the **deployment** directory
 
@@ -234,7 +234,7 @@ The app name is of your choice, e.g., `Contoso-AiiDAlab`.
 The _Homepage URL_ should be the full URL to your deployment, e.g., `https://aiidalab.contoso.com`.
 The _Authorization Callback URL_ for our example would then be `https://aiidalab.contoso.com/hub/oauth_callback`.
 
-Provide the *Client ID* and *Client Secret*  when prompted while setting up the deployment directory.
+Provide the *Client ID* and *Client Secret*  when prompted in step 5 of [setting up the deployment directory](#4-create-the-aiidalab-terraform-deployment-directory).
 
 ### Azure AD Single-Sign-On (SSO)
 
@@ -247,12 +247,12 @@ Follow these steps to register your deployment with your Azure Active Directory 
 5. Select who should have access to the deployment via Azure SSO.
 6. Configure the *Redirect URI* by selecting *web* and entering the Authorization Callback URL which would be of the form `https://aiidalab.contoso.com/hub/oauth_callback`.
 7. In the app view, click on *Certificates & secrets* under *Manage*.
-8. Create a new client secret by clicking on *New client secret* and give it a meaningful description (e.g. JupyterHub) and a reasonable expiration duration.
+8. Create a new client secret by clicking on *New client secret* and give it a meaningful description (e.g. `JupyterHub`) and a reasonable expiration duration.
    Make sure to note down the newly obtained client secret *value*.
 
-Provide the *Application (client) ID*, the *client secret value*, and the *Tenant ID* associated with the Azure AD when prompted while setting up the deployment directory.
+Provide the *Application (client) ID*, the *client secret value*, and the *Tenant ID* associated with the Azure AD when prompted in step 5 of [setting up the deployment directory](#4-create-the-aiidalab-terraform-deployment-directory).
 
-_This part of the documentation was adapted from [here](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-sign-user-app-registration?tabs=python#register-an-app-by-using-the-azure-portal)._
+_This part of the documentation was partially adapted from [here](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-sign-user-app-registration?tabs=python#register-an-app-by-using-the-azure-portal)._
 
 ## Security considerations
 
