@@ -56,7 +56,18 @@ Make note of the information listed above, it will be needed later during the se
 
 ### 4. Create the AiiDAlab Terraform deployment directory
 
-1. Decide on a **deployments directory**.
+1. Install **copier**
+
+   We use [copier](https://copier.readthedocs.io/en/stable/) to create an instance from this template.
+   If needed, install Python 3.7 or newer and Git 2.72 or newer into your deployment environment.
+   Both Python and Git are already installed in the Azure Cloud Shell environment.
+
+   Then install copier with
+   ```
+   $ pip install pipx && pipx install copier
+   ```
+
+2. Decide on a **deployments directory**.
 
    We recommend to keep all Terraform resources created with this template in a dedicated and backed up location.
    For example, assuming that you are deploying from the Azure Cloud shell, you could store them directly in the `~/clouddrive` directory.
@@ -67,7 +78,7 @@ Make note of the information listed above, it will be needed later during the se
    *Tip:* We recommend to track the deployments directory with git to naturally track changes to all deployments.
    This will also allow you to update and migrate existing deployments (see section *Update deployments*).
 
-2. Decide on a **hostname** for your deployment.
+3. Decide on a **hostname** for your deployment.
 
    This will be a domain where you can access your AiiDAlab deployment, e.g., `aiidalab.contoso.com`.
    It is important that you have control over the DNS setting for the associated domain, in this case `contoso.com`.
@@ -75,28 +86,13 @@ Make note of the information listed above, it will be needed later during the se
 
    _Note: In case that you do not intend to configure a domain name, e.g., for testing purposes, simply pick a memorable name for this deployment and leave the field for `dns-zone` empty when you are creating the deployments directory._
 
-3. _(optional)_ Create a **GitHub OAuth application**
+4. _(optional)_ Create an **external application for authentication**
 
    By default, this template uses the native authenticator for user authentication, meaning that the JupyterHub itself will allow users to create an account and maintain the user database.
    However, there are other options, please see our section on [user authentication](#user-authentication) for an overview of alternative methods.
    We generally recommend to use GitHub authentication for publicly accessible production deployments in which case users must have or create a GitHub account to log in.
 
-   In case you decide to use GitHub for authentication, please follow the [GitHub documentation](https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app) to create a GitHub OAuth app and make sure to select _GitHub Authenticator_ when asked about authentication methods when creating the deployment directory.
-
-   The app name is of your choice, e.g., `Contoso-AiiDAlab`.
-   The _Homepage URL_ should be the full URL to your deployment, e.g., `https://aiidalab.contoso.com`.
-   The _Authorization Callback URL_ for our example would then be `https://aiidalab.contoso.com/hub/oauth_callback`.
-
-4. Install **copier**
-
-   We use [copier](https://copier.readthedocs.io/en/stable/) to create an instance from this template.
-   If needed, install Python 3.7 or newer and Git 2.72 or newer into your deployment environment.
-   Both Python and Git are already installed in the Azure Cloud Shell environment.
-
-   Then install copier with
-   ```
-   $ pip install pipx && pipx install copier
-   ```
+   Please follow the detailed instructions for setting up an application with either [GitHub](#github-authentication) or [Azure AD](#azure-ad-single-sign-on-sso) if you decide to use any of these two methods.
 
 5. Create the **deployment** directory
 
@@ -222,17 +218,50 @@ To create the zone, simply switch into the directory and then initialize Terrafo
 
 JupyterHub on Kubernetes supports a variety of authentication methods, some of which are documented [here](https://zero-to-jupyterhub.readthedocs.io/en/stable/administrator/authentication.html).
 Any of these authenticators can in principle be used, however the template currently supports the automated configuration of the following authenticators:
-- [Native Authenticator](https://native-authenticator.readthedocs.io/en/latest/)
-- [GitHub Authenticator](https://zero-to-jupyterhub.readthedocs.io/en/stable/administrator/authentication.html#github)
-- [First-Use Authenticator](https://github.com/jupyterhub/firstuseauthenticator)
+- [Native Authentication](https://native-authenticator.readthedocs.io/en/latest/)
+- [GitHub Authentication](#github-authentication)
+- [Azure AD Authentication](#azure-ad-single-sign-on-sso)
+- [First-Use Authentication](https://github.com/jupyterhub/firstuseauthenticator)
 
 The native authenticator is the default authenticator, it allows users to create their own user profile (which by default must be enabled by an admin user) and maintains its own user database.
 In general, we recommend to use the GitHub authenticator for public tutorials or workshops.
 The first-use authenticator allows any user to sign up with any password and is **not recommended** for public deployments.
 
+### GitHub Authentication
+
+In case you decide to use GitHub for authentication, please follow the [GitHub documentation](https://docs.github.com/en/developers/apps/building-oauth-apps/creating-an-oauth-app) to create a GitHub OAuth app and make sure to select _GitHub Authenticator_ when asked about authentication methods when creating the deployment directory.
+
+The app name is of your choice, e.g., `Contoso-AiiDAlab`.
+The _Homepage URL_ should be the full URL to your deployment, e.g., `https://aiidalab.contoso.com`.
+The _Authorization Callback URL_ for our example would then be `https://aiidalab.contoso.com/hub/oauth_callback`.
+
+Provide the *Client ID* and *Client Secret*  when prompted in step 5 of [setting up the deployment directory](#4-create-the-aiidalab-terraform-deployment-directory).
+
+_See the [zero-to-jupyterhub documentation](https://zero-to-jupyterhub.readthedocs.io/en/stable/administrator/authentication.html#github) for more information on how to configure authentication via GitHub._
+
+### Azure AD Single-Sign-On (SSO)
+
+_This part of the documentation was partially adapted from [here](https://learn.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-sign-user-app-registration?tabs=python#register-an-app-by-using-the-azure-portal)._
+
+Follow these steps to register your deployment with your Azure Active Directory (AD) and thus enable users to access your deployment through Azure SSO.
+
+1. Sign into the [Azure portal](https://portal.azure.com).
+2. Search for and select *Active Directory*.
+3. In the left navigation bar, select *App registrations* and then click on *New registration*.
+4. Select an app name related to your deployment (it will be displayed to the user).
+5. Select who should have access to the deployment via Azure SSO.
+6. Configure the *Redirect URI* by selecting *web* and entering the Authorization Callback URL which would be of the form `https://aiidalab.contoso.com/hub/oauth_callback`.
+7. In the app view, click on *Certificates & secrets* under *Manage*.
+8. Create a new client secret by clicking on *New client secret* and give it a meaningful description (e.g. `JupyterHub`) and a reasonable expiration duration.
+   Make sure to note down the newly obtained client secret *value*.
+
+Provide the *Application (client) ID*, the *client secret value*, and the *Tenant ID* associated with the Azure AD when prompted in step 5 of [setting up the deployment directory](#4-create-the-aiidalab-terraform-deployment-directory).
+
+_See the [zero-to-jupyterhub documentation](https://zero-to-jupyterhub.readthedocs.io/en/stable/administrator/authentication.html#azure-active-directory) for more information on how to configure authentication via Azure AD._
+
 ## Security considerations
 
-The GitHub OAuth client credentials as well as the JupyterHub secret token are stored in plain text within the deployment directory and must for that reason not be pushed directly to public repositories.
+Some secrets, such as the GitHub or Azure AD client credentials as well as the JupyterHub secret token are stored in plain text within the deployment directory and must for that reason not be pushed directly to public repositories.
 
 ## Monitoring resources
 

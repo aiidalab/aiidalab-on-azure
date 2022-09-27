@@ -109,6 +109,7 @@ authenticator_class:
         Native Authenticator: nativeauthenticator.NativeAuthenticator
         First-Use Authenticator: firstuseauthenticator.FirstUseAuthenticator
         GitHub Authenticator: github
+        Azure Active Directory: azuread
     help: |
         Select which method to use for user authentication. We recommend to use
         either the native or the GitHub authenticator for deployments that are
@@ -169,6 +170,22 @@ gh_oauth_allowed_organizations:
         GitHub organizations. Specify multiple organizations through white
         space delimitation.
     when: "{{ authenticator_class == 'github' }}"
+
+azure_ad_client_id:
+    type: str
+    help: The Azure Enterprise Application Application ID.
+    when: "{{ authenticator_class == 'azuread' }}"
+
+azure_ad_client_secret:
+    type: str
+    secret: true
+    help: The Azure Enterprise Application SSO Client Secret Value.
+    when: "{{ authenticator_class == 'azuread' }}"
+
+azure_ad_tenant_id:
+    type: str
+    help: Azure Tenant ID associated with the Azure Enterprise Application.
+    when: "{{ authenticator_class == 'azuread' }}"
 
 admin_users:
     type: str
