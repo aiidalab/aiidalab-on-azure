@@ -27,6 +27,11 @@ hostname:
     type: str
     default:
     placeholder: aiidalab.contoso.com
+    # Hostname validator from: https://stackoverflow.com/a/1420225
+    validator: >
+        {% if not hostname|regex_search(
+        "^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|-){0,61}[0-9A-Za-z])?)*\.?$"
+        )%}Invalid hostname.{% endif %}
     help: |
         Fully qualified domain name of where the deployment is going to be reachable.
 
