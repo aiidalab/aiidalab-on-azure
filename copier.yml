@@ -87,7 +87,8 @@ secret_token:
     secret: true
     help: |
         The secret token to use for the JupyterHub. This is used to authenticate
-        the JupyterHub.
+        the JupyterHub. (The stars represent an automatically generated key that can
+        be safely used.)
 
 image_name:
     type: str
@@ -198,7 +199,7 @@ admin_users:
     placeholder: jdoe jsmith
     help: |
         Users listed here are granted admin access to the JupyterHub. Specify
-        multiple users through white space delimitation.
+        multiple users by their username through white space delimitation.
 
 allowed_users:
     type: str
@@ -206,4 +207,4 @@ allowed_users:
     placeholder: jdoe jsmith
     help: |
         Restrict the login to users who are listed here. Specify multiple users
-        through white space delimitation.
+        by their username through white space delimitation.
