@@ -24,7 +24,17 @@ If you are not familiar with the purpose and basic use of Terraform yet, we reco
 
 - **Azure service principal:** If you or your unit administrator has not yet created a service principal, follow the instructions [here](https://docs.microsoft.com/en-us/azure/developer/terraform/authenticate-to-azure#create-a-service-principal) and make note of the `appId`, `display_name`, `password`, and `tenant`.
 
-  Run the following command to get the object ID of the service principal: `az ad sp list --display-name "<display_name>" --query "[].{\"Object ID\":objectId}" --output table`
+  Run the following command to get the object ID of the service principal: `az ad sp list --display-name "<display_name>" --output table`
+  The output should look something like the following:
+
+  ```
+  username [ ~ ]$ az ad sp list --display-name <display_name> --output table
+  DisplayName     Id                                    AppId                                 CreatedDateTime
+  --------------  ------------------------------------  ------------------------------------  --------------------
+  <display_name>  a1054340-4625-4826-a37a-257313cecc57  0dbd96ff-a1ef-4bef-aa47-92bb0dabb6cb  2022-06-23T12:14:09Z
+  ```
+
+  The value in the `Id` column is the `<service_principal_object_id>` that is needed in the step below.
 
   **Do not store the service principal credentials within your deployment repository in plain text.**
   We recommend to store them as environment variables in your deployment environment.
@@ -36,11 +46,16 @@ If you are not familiar with the purpose and basic use of Terraform yet, we reco
   ```
   In this way they are automatically picked up by Terraform when needed and you do not have to manually provide them.
 
+  To ensure the variables are available in the current shell, make sure to source the `.bashrc` file by running `source ~/.bashrc`
+
 - **SSH key pair**: Use the information in one of the following articles to create an SSH key pair:
 
     - [Portal](https://docs.microsoft.com/en-us/azure/virtual-machines/ssh-keys-portal#generate-new-keys)
     - [Windows](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/ssh-from-windows#create-an-ssh-key-pair)
     - [Linux/MacOS](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/mac-create-ssh-keys#create-an-ssh-key-pair)
+
+   The key pair, the private as well as the public key, should be copied to the `~/.ssh` directory with the names `id_rsa` and `id_rsa.pub`, respectively.
+   Terraform will require these keys in order to authenticate with the Azure service.
 
 ### 3. Configure Azure storage to store Terraform state
 
@@ -48,7 +63,7 @@ Your unit administrator may have already created an Azure storage account to sto
 
 - The Azure storage account name.
 - The resource group name of the storage account.
-- The storage account terraform container name.
+- The name of the container in the storage account to be used by terraform.
 
 Otherwise, please follow the instructions [here](https://github.com/MicrosoftDocs/azure-dev-docs/blob/main/articles/terraform/create-k8s-cluster-with-tf-and-aks.md#2-configure-azure-storage-to-store-terraform-state) to create a storage account to store Terraform state.
 
@@ -80,13 +95,15 @@ Make note of the information listed above, it will be needed later during the se
 
 3. Decide on a **hostname** for your deployment.
 
+   _Note: In case that you do not intend to configure a domain name, e.g., for testing purposes, simply pick a memorable name for this deployment and leave the field for `dns-zone` empty when you are creating the deployment directory._
+
    This will be a domain where you can access your AiiDAlab deployment, e.g., `aiidalab.contoso.com`.
    It is important that you have control over the DNS setting for the associated domain, in this case `contoso.com`.
    Please see the section on DNS-zones for automated DNS configuration.
 
-   _Note: In case that you do not intend to configure a domain name, e.g., for testing purposes, simply pick a memorable name for this deployment and leave the field for `dns-zone` empty when you are creating the deployment directory._
-
 4. _(optional)_ Create an **external application for authentication**
+
+   _Note: For a testing deployment, the easiest is to use the default native authentication option. This does not require any setup, unlike the Github authentication which requires a public domain name and an OAuth application to be configured._
 
    By default, this template uses the native authenticator for user authentication, meaning that the JupyterHub itself will allow users to create an account and maintain the user database.
    However, there are other options, please see our section on [user authentication](#user-authentication) for an overview of alternative methods.
@@ -105,14 +122,16 @@ Make note of the information listed above, it will be needed later during the se
 ### 5. Use Terraform to create the deployment
 
 To create the deployment, switch into your _deployment directory_, e.g., `cd ~/clouddrive/aiidalab.contoso.com`, and run the following command:
-
 ```
 $ terraform init
-
 ```
 
-After succesful initialization, run the following command to apply all necessary changes, i.e., create all required resources for your deployment:
+After succesful initialization, run the following command to see the changes terraform would apply:
+```
+$ terraform plan
+```
 
+If the changes look correct, execute the following command to apply all necessary changes, i.e., create all required resources for your deployment:
 ```
 $ terraform apply
 ```
