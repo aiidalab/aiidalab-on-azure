@@ -57,7 +57,7 @@ hub:
       ask_email_on_signup: {{ native_auth_ask_for_email }}
       check_common_password: {{ native_auth_check_common_password }}
       minimum_password_length: {{ native_auth_minimum_password_length }}
-      open_signup: {{ native_auth_open_signup }}
+      open_signup: {{ native_auth_signup_admin_approval is false }}
 {%- endif %}
 {%- if authenticator_class == "github" %}
     GitHubOAuthenticator:
