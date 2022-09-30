@@ -2,6 +2,27 @@
 
 This repository contains instructions and template files to deploy an [AiiDAlab](https://www.aiidalab.net) JupyterHub instance on Azure using the [Azure Kubernetes Service (AKS)](https://docs.microsoft.com/en-us/azure/aks/) and [Terraform](https://www.terraform.io/).
 
+## Table of contents
+
+* [Create an AiiDAlab deployment on Azure (with AKS)](#create-an-aiidalab-deployment-on-azure-with-aks)
+   * [Learn the Terraform basics](#learn-the-terraform-basics)
+   * [Configure your environment](#configure-your-environment)
+   * [Configure Azure storage to store Terraform state](#configure-azure-storage-to-store-terraform-state)
+   * [Create the AiiDAlab Terraform deployment directory](#create-the-AiiDAlab-terraform-deployment-directory)
+   * [Use Terraform to create the deployment](#use-terraform-to-create-the-deployment)
+   * [Monitor and maintain the deployment](#monitor-and-maintain-the-deployment)
+   * [Configure your domain](#configure-your-domain)
+   * [Enable https](#enable-https)
+   * [Tear down deployment](#tear-down-deployment)
+* [Accessing the deployment](#accessing-the-deployment)
+* [Update deployments](#update-deployments)
+* [DNS-zones](#dns-zones)
+* [User authentication](#user-authentication)
+* [Security considerations](#security-considerations)
+* [Monitoring resources](#monitoring-resources)
+* [Known limitations](#known-limitations)
+* [LICENSE](#LICENSE)
+
 ## Create an AiiDAlab deployment on Azure (with AKS)
 
 _Documentation is partially adapted from [here](https://docs.microsoft.com/en-us/azure/developer/terraform/create-k8s-cluster-with-tf-and-aks#1-configure-your-environment)._
@@ -135,26 +156,33 @@ If the changes look correct, execute the following command to apply all necessar
 ```
 $ terraform apply
 ```
-
 Make sure to _review_ the planned changes before applying them by confirming with `yes`.
+
+If the `apply` fails and you run into problems, refer to the [Teardown section](#tear-down-deployment) on how to reset your environment.
 
 ### 6. Monitor and maintain the deployment
 
 In order to interact with the Kubernetes cluster and for example check the status of individual nodes or pods, you first need to configure `kubectl` to use the `kubeconfig` of the cluster.
 
 1. Change into your deployment directory (e.g. `cd ~/clouddrive/aiidalab.contoso.com`).
-2. Create a kubeconfig file with the following command:
+2. Make sure the `kubectl` client is authenticated with the Azure service:
+   ```
+   $ az aks get-credentials --resource-group <resource_group_name> --name <cluster_name>
+   ```
+   Here `<resource_group_name>` is the name of the resource group that was provided in the `copier` setup (see Step 4.5).
+   The `<cluster_name>` is the name of the cluster that was created, which is `k8s-cluster` by default.
+
+3. Create a kubeconfig file with the following command:
    ```
    $ echo "$(terraform output --raw kube_config)" > ./kubeconfig
    ```
-3. Set the `KUBECONFIG` environment variable to point to the kubeconfig file we just created:
+4. Set the `KUBECONFIG` environment variable to point to the kubeconfig file we just created:
    ```
    $ KUBECONFIG=./kubeconfig
    ```
-4. Finally, check whether you can access the cluster, e.g., with the `$ kubectl get node` command.
+5. Finally, check whether you can access the cluster, e.g., with the `$ kubectl get node` command.
 
 *Tip:* The deployment directory contains a script that performs steps 2 and 3 for you with `$ source setup-kubeconfig`.
-
 
 ### 7. Configure your domain
 
@@ -173,6 +201,7 @@ If you are not using DNS zones, you will have to set an A or C record for your d
    if the address is a domain name.
 
 Depending on your registrar, it might take a few minutes to many hours for the DNS record to propagate.
+
 ### 8. Enable https
 
 _Important: Step 8 must be skipped if you only want to test your deployment without a dedicated domain or have otherwise no need for the use of https._
@@ -202,12 +231,37 @@ Apply the change by running
 $ terraform apply
 ```
 
-### 9. Tear down deploymet
+### 9. Tear down deployment
 
 To tear down a deployment, simply go to the corresponding resource and run `terraform destroy`.
 After that you you may have to manually clean up external resources (such as a GitHub OAuth app) that were not created by Terraform.
 
+If you recreate a deployment after a tear down, make sure to delete any old Terraform states that are stored in the container of the storage account.
+This can be done through the Azure web interface.
+
 Note: The DNS zone entry will not be automatically deleted (see also section on *Known limitations*).
+
+## Accessing the deployment
+
+After you have successfully completed the deployment, you can access AiiDAlab through a browser.
+If you didn't configure a public domain, you will first need to determine the public IP at which AiiDAlab is exposed.
+
+1. Make sure you have configured the `kubectl` client (see ["Monitor and maintain the deployment"](#monitor-and-maintain-the-deployment))
+2. List the kubernetes services:
+   ```
+   $ kubectl get service
+   ```
+   This should print something like the following:
+   ```
+   NAME           TYPE           CLUSTER-IP    EXTERNAL-IP      PORT(S)        AGE
+   hub            ClusterIP      10.0.81.241   <none>           8081/TCP       21h
+   kubernetes     ClusterIP      10.0.0.1      <none>           443/TCP        21h
+   proxy-api      ClusterIP      10.0.61.104   <none>           8001/TCP       21h
+   proxy-public   LoadBalancer   10.0.233.95   20.200.300.400   80:30821/TCP   21h
+   ```
+3. Note the external IP of the `proxy-public` service (`20.200.300.400` in the example above).
+
+AiiDAlab can now be accessed through a browser using this IP address or the public domain if one was configured.
 
 ## Update deployments
 
