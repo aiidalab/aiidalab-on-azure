@@ -126,7 +126,7 @@ The information listed above will be needed later during the setup process.
    ```
    $ copier gh:aiidalab/aiidalab-on-azure ~/clouddrive
    ```
-   
+
    The deployment directory is automatically named by its associated hostname - for example, an AiiDAlab deployment at `aiidalab.contoso.com` would be stored in `~/clouddrive/aiidalab.contoso.com`.
 
    *Tip:* We recommend tracking the top-level directory with git to naturally track changes to all deployments.
@@ -181,7 +181,7 @@ In order to interact with the Kubernetes cluster, for example to check the statu
    proxy-api      ClusterIP      10.0.61.104   <none>           8001/TCP       21h
    proxy-public   LoadBalancer   10.0.233.95   20.200.300.400   80:30821/TCP   21h
    ```
-   
+
    The AiiDAlab can be accessed using the public IP address of the `proxy-public` load balancer (`20.200.300.400` in the example above).
 
 *Tip:* The deployment directory contains a script that performs steps 2 and 3 for you with `$ source setup-kubeconfig`.
