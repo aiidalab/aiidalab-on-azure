@@ -1,16 +1,11 @@
-resource "random_pet" "rg-name" {
-  prefix = var.resource_group_name_prefix
-}
-
-resource "azurerm_resource_group" "rg" {
-  name     = random_pet.rg-name.id
-  location = var.resource_group_location
+data "azurerm_resource_group" "default" {
+  name     = "{{ azurerm_resource_group_name }}"
 }
 
 module "cluster" {
   source = "./modules/cluster"
 
-  resource_group_name                 = azurerm_resource_group.rg.name
+  resource_group_name                 = data.azurerm_resource_group.default.name
   cluster_name                        = var.cluster_name
   ssh_public_key                      = var.ssh_public_key
   aks_service_principal_app_id        = var.arm_client_id
