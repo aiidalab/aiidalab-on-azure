@@ -7,7 +7,7 @@ This repository contains instructions and template files to deploy an [AiiDAlab]
 * [Create an AiiDAlab deployment on Azure (with AKS)](#create-an-aiidalab-deployment-on-azure-with-aks)
    * [Learn the Terraform basics](#learn-the-terraform-basics)
    * [Configure your environment](#configure-your-environment)
-   * [Configure Azure storage to store Terraform state](#configure-azure-storage-to-store-terraform-state)
+   * [Configure Azure resources](#configure-azure-resources)
    * [Create the AiiDAlab Terraform deployment directory](#create-the-AiiDAlab-terraform-deployment-directory)
    * [Use Terraform to create the deployment](#use-terraform-to-create-the-deployment)
    * [Access and maintain the deployment](#access-and-maintain-the-deployment)
@@ -77,17 +77,17 @@ If you are not familiar with the purpose and basic use of Terraform yet, we reco
    The private and public key should be copied to the `~/.ssh` directory with the names `id_rsa` and `id_rsa.pub`, respectively.
    The private key will eventually provide ssh access to the cluster as the `ubuntu` user.
 
-### 3. Configure Azure storage to store Terraform state
+### 3. Configure Azure resources
 
-Your unit administrator may have already created an Azure storage account to store Terraform state for your unit, in which case please ask them to provide:
+The deployment requires a number of Azure resources to be created in advance:
 
-- The Azure storage account name.
-- The resource group name of the storage account.
-- The name of the container in the storage account to be used by terraform.
+- A resource group: All created resources will be grouped under this group
+- A storage account: An account that can host storage containers
+- A storage container: A container in the storage account that is used to store Terraform state
 
-Otherwise, please follow the instructions [here](https://github.com/MicrosoftDocs/azure-dev-docs/blob/main/articles/terraform/create-k8s-cluster-with-tf-and-aks.md#2-configure-azure-storage-to-store-terraform-state) to create a storage account and a container to store Terraform state.
+See the following links for instructions on how to create a [resource group](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal), [storage account](#https://learn.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) and [storage container](#https://learn.microsoft.com/en-us/azure/storage/blobs/blob-containers-portal).
 
-The information listed above will be needed later during the setup process.
+Make note of the names of the three resources listed above as they will be needed later during the setup process.
 
 ### 4. Create the AiiDAlab Terraform deployment directory
 

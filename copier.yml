@@ -5,23 +5,19 @@ _answers_file: .copier-answers.aiidalab-on-azure.yml
 _tasks:
     - cp '{{ _copier_conf.answers_file }}' '{{ hostname }}/.copier-answers.yml'
 
-azurerm_storage_account_name:
-    type: str
-    help: |
-        The name of the storage account that is used to maintain the terraform
-        state.
-
-azurerm_storage_account_rg:
+azurerm_resource_group_name:
     type: str
     default:
-    help: The name of the resource group that contains the storage account.
+    help: The name of the resource group to use.
+
+azurerm_storage_account_name:
+    type: str
+    help: The name of the storage account to use.
 
 azurerm_container_name:
     type: str
     default:
-    help: |
-        The container name used to maintain terraform states within the storage
-        account.
+    help: The name of the container in the storage account to use.
 
 hostname:
     type: str

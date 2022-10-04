@@ -9,7 +9,7 @@ terraform {
     }
   }
   backend "azurerm" {
-    resource_group_name  = "{{ azurerm_storage_account_rg }}"
+    resource_group_name  = "{{ azurerm_resource_group_name }}"
     storage_account_name = "{{ azurerm_storage_account_name }}"
     container_name       = "{{ azurerm_container_name }}"
     key                  = "{{ hostname }}.terraform.tfstate"
