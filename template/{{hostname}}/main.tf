@@ -1,5 +1,5 @@
 data "azurerm_resource_group" "default" {
-  name     = "{{ azurerm_resource_group_name }}"
+  name = "{{ azurerm_resource_group_name }}"
 }
 
 module "cluster" {
