@@ -168,9 +168,9 @@ In order to interact with the Kubernetes cluster, for example to check the statu
    ```
    $ echo "$(terraform output --raw kube_config)" > ./kubeconfig
    ```
-4. Set the `KUBECONFIG` environment variable to point to the kubeconfig file we just created:
+4. Set the `KUBE_CONFIG_PATH` environment variable to point to the kubeconfig file we just created:
    ```
-   $ KUBECONFIG=./kubeconfig
+   $ KUBE_CONFIG_PATH=./kubeconfig
    ```
 5. Finally, check whether you can access the cluster. For example,listing the kubernetes services:
    ```
