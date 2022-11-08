@@ -29,9 +29,9 @@ singleuser:
     limit: 4G
     guarantee: 2G
   cpu:
-    limit: 2.0
-    guarantee: .5
-  startTimeout: 120
+    limit: 3.0
+    guarantee: 1.0
+  startTimeout: 600
 
 hub:
   config:
