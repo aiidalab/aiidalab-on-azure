@@ -31,6 +31,7 @@ singleuser:
   cpu:
     limit: 3.0
     guarantee: 1.0
+  # should be >= startup time of a new kubernetes node
   startTimeout: 600
 
 hub:
