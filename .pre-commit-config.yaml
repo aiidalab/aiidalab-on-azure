@@ -1,4 +1,8 @@
 ---
+ci:
+    # skip checks that require terraform to be installed
+    skip: [tflint, terraform-fmt]
+
 repos:
 
     - repo: https://github.com/pre-commit/pre-commit-hooks
