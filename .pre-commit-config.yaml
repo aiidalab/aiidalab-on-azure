@@ -6,7 +6,7 @@ ci:
 repos:
 
     - repo: https://github.com/pre-commit/pre-commit-hooks
-      rev: v4.3.0
+      rev: v4.5.0
       hooks:
           - id: check-json
           - id: check-yaml
@@ -15,7 +15,7 @@ repos:
           - id: trailing-whitespace
 
     - repo: https://github.com/gruntwork-io/pre-commit
-      rev: v0.1.17
+      rev: v0.1.23
       hooks:
           - id: tflint
             # Work-around for issue that  causes hook to fail on files with
@@ -25,7 +25,7 @@ repos:
           - id: terraform-fmt
 
     - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
-      rev: 0.2.2
+      rev: 0.2.3
       hooks:
           - id: yamlfmt
             exclude: values.yml  # it's a Jinja2 template
